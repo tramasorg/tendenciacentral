@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Media, mediana, moda, varianza y covarianza en psicología</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F6FA; --card:#FFFFFF; --ink:#13223B; --muted:#51607A; --line:#C9D3E1;
+  --blue:#1F56B3; --blueSoft:#E2EBF8; --teal:#0B7A87; --tealSoft:#D8EEF0; --gold:#8F6300; --goldSoft:#F5E9C8;
+  --hl:#FFF1A8; --ok:#1E7A45; --okSoft:#DCF1E4; --bad:#B42318; --badSoft:#FBE3E1; --grey:#AEB9CA;
+  --serif:"Lora", Georgia, "Times New Roman", serif;
+  --sans:"Work Sans", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1624; --card:#162133; --ink:#E6ECF5; --muted:#A2B0C6; --line:#2C3B53;
+    --blue:#7FA8F0; --blueSoft:#1C2E4E; --teal:#5CC6D1; --tealSoft:#133840; --gold:#E3B75A; --goldSoft:#3B3017;
+    --hl:#4F4715; --ok:#7FD39E; --okSoft:#173A26; --bad:#F29B91; --badSoft:#402020; --grey:#4A5870;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1624; --card:#162133; --ink:#E6ECF5; --muted:#A2B0C6; --line:#2C3B53;
+  --blue:#7FA8F0; --blueSoft:#1C2E4E; --teal:#5CC6D1; --tealSoft:#133840; --gold:#E3B75A; --goldSoft:#3B3017;
+  --hl:#4F4715; --ok:#7FD39E; --okSoft:#173A26; --bad:#F29B91; --badSoft:#402020; --grey:#4A5870;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:18px;line-height:1.6}
+.wrap{max-width:1140px;margin:0 auto;padding:28px 20px 80px}
+h1{font-weight:400;font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:.2em 0 .25em;max-width:22ch}
+h2{font-weight:600;font-size:1.6rem;line-height:1.2;margin:0 0 .4em}
+h3{font-family:var(--sans);font-weight:600;font-size:1.02rem;margin:1.1em 0 .4em}
+p{margin:.5em 0 .8em;max-width:72ch}
+ul,ol{padding-left:1.25em;margin:.4em 0} li{margin:.3em 0}
+.lede{font-size:1.12rem;color:var(--muted);max-width:62ch}
+.note{font-family:var(--sans);font-size:.85rem;color:var(--muted)}
+sub,sup{font-size:.72em}
+button{font-family:var(--sans)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.scen{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:var(--sans);font-size:.92rem;margin:14px 0 0}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ink);padding:6px 14px;font:500 .9rem var(--sans);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+.bigtabs{display:flex;gap:0;margin:26px 0 0;border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.bigtabs button{border:0;background:transparent;color:var(--muted);font:600 1.05rem var(--sans);padding:12px 22px;cursor:pointer;border-radius:10px 10px 0 0}
+.bigtabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.bigpanel{display:none;padding-top:20px} .bigpanel.on{display:block}
+nav.parts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+nav.parts button{flex:1 1 170px;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:.93rem;line-height:1.3}
+nav.parts button b{display:block;font-size:.76rem;color:var(--muted);font-weight:500}
+nav.parts button[aria-selected="true"]{border-color:var(--blue);box-shadow:inset 0 -3px 0 var(--blue)}
+.part{display:none} .part.on{display:block}
+
+.case{border-left:4px solid var(--teal);background:var(--tealSoft);padding:12px 18px;border-radius:0 8px 8px 0;margin:4px 0 18px}
+.case p{margin:.2em 0}
+
+.stepper{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:24px;align-items:start}
+@media (max-width:880px){.stepper{grid-template-columns:1fr}}
+.explain{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;position:sticky;top:calc(12px + env(safe-area-inset-top,0px))}
+@media (max-width:880px){.explain{position:static}}
+.stepcount{font-family:var(--sans);font-size:.85rem;color:var(--muted);margin-bottom:4px}
+.explain h3.st{font-family:var(--serif);font-size:1.35rem;font-weight:600;margin:.1em 0 .4em}
+.dots{display:flex;flex-wrap:wrap;gap:5px;margin:14px 0 12px}
+.dots button{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--muted);font:500 .75rem var(--sans);cursor:pointer;padding:0}
+.dots button.done{background:var(--tealSoft);border-color:var(--teal);color:var(--ink)}
+.dots button.cur{background:var(--blue);border-color:var(--blue);color:#fff}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:600 .92rem var(--sans);padding:9px 16px;border-radius:8px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.small{padding:6px 12px;font-size:.85rem}
+.btn:disabled{opacity:.4;cursor:default}
+.formula{font-family:var(--sans);background:var(--paper);border-radius:8px;padding:8px 12px;margin:8px 0;font-variant-numeric:tabular-nums;overflow-x:auto;line-height:1.7}
+.viz{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.viz svg{width:100%;height:auto;display:block}
+.chiprow{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0;font-family:var(--sans)}
+.chip{min-width:2.4em;text-align:center;padding:3px 7px;border:1px solid var(--line);border-radius:6px;background:var(--card);font-size:.9rem;font-variant-numeric:tabular-nums}
+.chip.hl{background:var(--hl);border-color:var(--ink);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:10px 0;font-family:var(--sans)}
+.stats div{border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--paper)}
+.stats span{display:block;font-size:.74rem;color:var(--muted)}
+.stats strong{font-size:1.12rem;font-variant-numeric:tabular-nums}
+.stats div.key{background:var(--hl)}
+.tscroll{overflow-x:auto;margin:8px 0}
+table.t{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.88rem;font-variant-numeric:tabular-nums}
+.t th,.t td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.t th{background:var(--paper);font-weight:600}
+.t td.hid,.t th.hid{color:transparent;background:repeating-linear-gradient(135deg,transparent 0 6px,var(--paper) 6px 8px)}
+.t td.new,.t th.new{background:var(--hl)}
+.t tr.row-hl td{background:var(--tealSoft)}
+.t tfoot td{font-weight:700;border-bottom:none}
+.t td.pos{color:var(--teal);font-weight:600} .t td.neg{color:var(--gold);font-weight:600}
+.t.biv td.cellpos{background:var(--tealSoft)} .t.biv td.cellneg{background:var(--goldSoft)}
+.t.biv th.mk{background:var(--blueSoft)}
+.slider{font-family:var(--sans);font-size:.92rem;margin:12px 0 4px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+.slider input{width:100%;accent-color:var(--blue)}
+.opts{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:.92rem;margin:10px 0 0}
+.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+svg text{font-family:var(--sans);font-size:11.5px;fill:var(--muted)}
+svg text.lbl{fill:var(--ink);font-weight:600;font-size:12.5px}
+svg text.val{fill:var(--ink);font-size:11px}
+svg .axis{stroke:var(--ink);stroke-width:1.3}
+svg .grid{stroke:var(--line);stroke-width:1}
+svg .dot{fill:var(--blue)}
+svg .dot.hl{fill:var(--gold);stroke:var(--ink);stroke-width:1.5}
+svg .dot.pos{fill:var(--teal)} svg .dot.neg{fill:var(--gold)} svg .dot.zero{fill:var(--grey)}
+svg .mMean{stroke:var(--blue);stroke-width:2.4}
+svg .mMed{stroke:var(--teal);stroke-width:2.4;stroke-dasharray:7 4}
+svg .mMode{stroke:var(--gold);stroke-width:2.4;stroke-dasharray:2 4}
+svg .band{fill:var(--blueSoft);opacity:.7}
+svg .bar{fill:var(--blueSoft);stroke:var(--blue);stroke-width:1.3}
+svg .bar.hl{fill:var(--hl);stroke:var(--ink)}
+svg .czu{stroke:var(--ink);stroke-width:1.4}
+svg .devn{stroke:var(--gold);stroke-width:3} svg .devp{stroke:var(--teal);stroke-width:3}
+svg .sqn{fill:var(--goldSoft);stroke:var(--gold)} svg .sqp{fill:var(--tealSoft);stroke:var(--teal)}
+svg .ful{fill:var(--ink)}
+svg .quad{fill:var(--tealSoft);opacity:.55} svg .quadn{fill:var(--goldSoft);opacity:.55}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--sans);font-size:.82rem;color:var(--muted);margin:0 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid}
+details.own{margin:18px 0 0;font-family:var(--sans);font-size:.92rem}
+details.own summary{cursor:pointer;color:var(--blue);font-weight:600}
+details.own textarea{width:100%;min-height:70px;margin:6px 0;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.msg{font-family:var(--sans);font-size:.9rem;margin:8px 0} .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0}
+.stage h3{font-family:var(--serif);font-size:1.3rem;margin-top:0}
+.calcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;font-family:var(--sans);margin:12px 0}
+.calcgrid label{display:flex;flex-direction:column;font-size:.84rem;color:var(--muted);gap:4px}
+input.cell2{font:500 .95rem var(--sans);padding:7px 8px;border:1.5px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);width:100%;text-align:center;font-variant-numeric:tabular-nums}
+.cell2.ok{border-color:var(--ok);background:var(--okSoft)} .cell2.bad{border-color:var(--bad);background:var(--badSoft)}
+.fb{font-family:var(--sans);font-size:.8rem;min-height:1.1em} .fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.sol{font-family:var(--sans);font-size:.9rem;background:var(--paper);border-radius:8px;padding:10px 14px;margin-top:10px;display:none;line-height:1.7;overflow-x:auto}
+.sol.on{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:22px}
+.cards > div{border-top:2px solid var(--ink);padding-top:6px}
+footer{margin-top:50px;font-family:var(--sans);font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="note" style="margin:0;font-size:.9rem">Estadística descriptiva para psicología</p>
+    <h1>Centro, dispersión y relación entre variables</h1>
+    <p class="lede">Aprende paso a paso a calcular e interpretar la media, la mediana y la moda; la varianza y la desviación estándar; y la covarianza, primero con datos no agrupados y después con datos agrupados en tablas de frecuencias.</p>
+    <div class="scen">Escenario de los ejemplos:
+      <span class="seg" role="group" aria-label="Escenario">
+        <button data-scen="clin" aria-pressed="true">Clínico</button>
+        <button data-scen="for" aria-pressed="false">Forense</button>
+      </span>
+    </div>
+  </header>
+
+  <div class="bigtabs" role="tablist" aria-label="Tipo de datos">
+    <button role="tab" data-big="ua" aria-selected="true">Datos no agrupados</button>
+    <button role="tab" data-big="g" aria-selected="false">Datos agrupados</button>
+  </div>
+
+  <div class="bigpanel on" id="ua">
+    <nav class="parts" role="tablist" aria-label="Temas con datos no agrupados">
+      <button role="tab" data-p="ua-tc" aria-selected="true"><b>Tema 1</b>Media, mediana y moda</button>
+      <button role="tab" data-p="ua-di" aria-selected="false"><b>Tema 2</b>Varianza y desviación estándar</button>
+      <button role="tab" data-p="ua-cv" aria-selected="false"><b>Tema 3</b>Covarianza</button>
+      <button role="tab" data-p="ua-ex" aria-selected="false"><b>Práctica</b>Ejercicio</button>
+    </nav>
+    <div class="part on" id="ua-tc"><div class="case" id="uaCase"></div><div data-stepper="utc"></div>
+      <details class="own"><summary>Usar otros datos</summary><p class="note">Pega valores separados por espacios, comas o saltos de línea; decimales con punto. Se usan en los temas 1 y 2.</p><textarea id="uaText" aria-label="Datos propios"></textarea><div class="ctrl"><button class="btn small" id="uaApply">Usar estos datos</button><button class="btn small ghost" id="uaReset">Volver al ejemplo</button></div><div class="msg" id="uaMsg"></div></details>
+    </div>
+    <div class="part" id="ua-di"><div class="case" id="uaCase2"></div><div data-stepper="udi"></div></div>
+    <div class="part" id="ua-cv"><div class="case" id="ubCase"></div><div data-stepper="ucv"></div>
+      <details class="own"><summary>Usar otros datos pareados</summary><p class="note">Escribe los valores de X y de Y en el mismo orden (el primer X va con el primer Y).</p><textarea id="ubX" aria-label="Valores de X" placeholder="Valores de X"></textarea><textarea id="ubY" aria-label="Valores de Y" placeholder="Valores de Y"></textarea><div class="ctrl"><button class="btn small" id="ubApply">Usar estos datos</button><button class="btn small ghost" id="ubReset">Volver al ejemplo</button></div><div class="msg" id="ubMsg"></div></details>
+    </div>
+    <div class="part" id="ua-ex">
+      <div class="ctrl"><button class="btn" id="uxNew">Generar otro ejercicio</button></div>
+      <div class="stage"><h3>A. Tendencia central y dispersión</h3><div id="uxA"></div></div>
+      <div class="stage"><h3>B. Covarianza y correlación</h3><div id="uxB"></div></div>
+    </div>
+  </div>
+
+  <div class="bigpanel" id="g">
+    <nav class="parts" role="tablist" aria-label="Temas con datos agrupados">
+      <button role="tab" data-p="g-tc" aria-selected="true"><b>Tema 1</b>Media, mediana y moda</button>
+      <button role="tab" data-p="g-di" aria-selected="false"><b>Tema 2</b>Varianza y desviación estándar</button>
+      <button role="tab" data-p="g-cv" aria-selected="false"><b>Tema 3</b>Covarianza</button>
+      <button role="tab" data-p="g-ex" aria-selected="false"><b>Práctica</b>Ejercicio</button>
+    </nav>
+    <div class="part on" id="g-tc"><div class="case" id="gCase"></div><div data-stepper="gtc"></div>
+      <details class="own"><summary>Usar otros datos</summary><p class="note">Pega al menos 15 valores crudos: se agrupan con la regla de Sturges, como en la tabla de frecuencias. Se usan en los temas 1 y 2.</p><textarea id="gText" aria-label="Datos propios para agrupar"></textarea><div class="ctrl"><button class="btn small" id="gApply">Agrupar y usar</button><button class="btn small ghost" id="gReset">Volver al ejemplo</button></div><div class="msg" id="gMsg"></div></details>
+    </div>
+    <div class="part" id="g-di"><div class="case" id="gCase2"></div><div data-stepper="gdi"></div></div>
+    <div class="part" id="g-cv"><div class="case" id="gbCase"></div><div data-stepper="gcv"></div></div>
+    <div class="part" id="g-ex">
+      <div class="ctrl"><button class="btn" id="gxNew">Generar otro ejercicio</button></div>
+      <div class="stage"><h3>A. Medidas con datos agrupados</h3><div id="gxA"></div></div>
+      <div class="stage"><h3>B. Covarianza en una tabla de doble entrada</h3><div id="gxB"></div></div>
+    </div>
+  </div>
+
+  <footer>Todos los datos son simulados con fines didácticos. Los instrumentos mencionados (BDI-II, BIS-11, PCL-R) deben aplicarlos e interpretarlos profesionales capacitados y con baremos apropiados. En este material la varianza, la desviación estándar y la covarianza se calculan como muestrales (dividiendo entre n − 1), salvo que se indique lo contrario.</footer>
+</div>
+
+<script>
+/* ============ utilidades ============ */
+const $ = s => document.querySelector(s);
+const r6 = x => Math.round(x * 1e6) / 1e6;
+const f2 = x => (Math.abs(x) < 0.005 ? 0 : x).toFixed(2);
+const f1 = x => (Math.abs(x) < 0.05 ? 0 : x).toFixed(1);
+const fv = x => Number.isInteger(r6(x)) ? String(Math.round(x)) : String(+r6(x).toFixed(3));
+const neg = x => x < 0 ? `(${f2(x)})` : f2(x);
+const sum = a => a.reduce((s, x) => s + x, 0);
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gaussF(R){ return () => { let u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }; }
+const parse = t => t.split(/[\s,;]+/).filter(Boolean).map(Number);
+const num = v => { const t = String(v).trim().replace(',', '.'); return t === '' ? NaN : Number(t); };
+const listSum = (arr, fmt = fv) => arr.length > 14 ? arr.slice(0, 6).map(fmt).join(' + ') + ' + … + ' + arr.slice(-3).map(fmt).join(' + ') : arr.map(fmt).join(' + ');
+const decimalsOf = arr => Math.max(0, ...arr.map(v => { const s = String(v); const i = s.indexOf('.'); return i < 0 ? 0 : s.length - i - 1; }));
+
+/* ============ motores de cálculo ============ */
+function uStats(d){
+  const n = d.length, S = sum(d), mean = S / n, sorted = [...d].sort((a, b) => a - b);
+  const med = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+  const fr = new Map(); d.forEach(x => fr.set(x, (fr.get(x) || 0) + 1));
+  const maxf = Math.max(...fr.values());
+  const modes = maxf > 1 ? [...fr.entries()].filter(([, f]) => f === maxf).map(([x]) => x).sort((a, b) => a - b) : [];
+  const dev = d.map(x => x - mean), sq = dev.map(x => x * x), ss = sum(sq);
+  const varS = ss / (n - 1), varP = ss / n, sd = Math.sqrt(varS);
+  return { n, S, mean, sorted, med, fr, maxf, modes, dev, sq, ss, varS, varP, sd, sdP: Math.sqrt(varP), cv: sd / mean * 100, min: sorted[0], max: sorted[n - 1] };
+}
+function bStats(x, y){
+  const n = x.length, mx = sum(x) / n, my = sum(y) / n;
+  const dx = x.map(v => v - mx), dy = y.map(v => v - my), pr = dx.map((v, i) => v * dy[i]);
+  const sp = sum(pr), cov = sp / (n - 1), sx = Math.sqrt(sum(dx.map(v => v * v)) / (n - 1)), sy = Math.sqrt(sum(dy.map(v => v * v)) / (n - 1));
+  return { n, mx, my, dx, dy, pr, sp, cov, sx, sy, r: cov / (sx * sy) };
+}
+function grouped(data){
+  const n = data.length, sorted = [...data].sort((a, b) => a - b);
+  const d = decimalsOf(data), u = r6(10 ** -d);
+  const min = sorted[0], max = sorted[n - 1], R = r6(max - min);
+  const k = Math.round(1 + 3.322 * Math.log10(n));
+  let A = r6(Math.ceil(r6(R / k / u)) * u); if (r6(A * k) <= R) A = r6(A + u);
+  const rows = []; let F = 0;
+  for (let i = 0; i < k; i++){
+    const Li = r6(min + i * A), Ls = r6(Li + A - u), LRi = r6(Li - u / 2), LRs = r6(Ls + u / 2), xi = r6((Li + Ls) / 2);
+    const fi = sorted.filter(v => v >= Li - 1e-9 && v <= Ls + 1e-9).length; F += fi;
+    rows.push({ Li, Ls, LRi, LRs, xi, fi, Fi: F });
+  }
+  return { n, u, min, max, R, k, A, rows, data };
+}
+function gStats(G){
+  const { rows, n, A } = G;
+  rows.forEach(r => r.fx = r.fi * r.xi);
+  const sfx = sum(rows.map(r => r.fx)), mean = sfx / n;
+  const half = n / 2, mi = rows.findIndex(r => r.Fi >= half), mr = rows[mi], Fprev = mi ? rows[mi - 1].Fi : 0;
+  const median = mr.LRi + (half - Fprev) / mr.fi * A;
+  const maxf = Math.max(...rows.map(r => r.fi)), moi = rows.findIndex(r => r.fi === maxf), mo = rows[moi];
+  const fprev = moi ? rows[moi - 1].fi : 0, fnext = moi < rows.length - 1 ? rows[moi + 1].fi : 0;
+  const d1 = mo.fi - fprev, d2 = mo.fi - fnext, mode = d1 + d2 ? mo.LRi + d1 / (d1 + d2) * A : mo.xi;
+  const nModal = rows.filter(r => r.fi === maxf).length;
+  rows.forEach(r => { r.dev = r.xi - mean; r.dev2 = r.dev * r.dev; r.fdev2 = r.fi * r.dev2; r.fx2 = r.fi * r.xi * r.xi; });
+  const ss = sum(rows.map(r => r.fdev2)), varS = ss / (n - 1), sd = Math.sqrt(varS), sfx2 = sum(rows.map(r => r.fx2));
+  return { sfx, mean, half, mi, Fprev, median, maxf, moi, fprev, fnext, d1, d2, mode, nModal, ss, varS, sd, sfx2, cv: sd / mean * 100 };
+}
+function classIdx(G, v){ return G.rows.findIndex(r => v >= r.Li - 1e-9 && v <= r.Ls + 1e-9); }
+function bivGrouped(x, y){
+  const GX = grouped(x), GY = grouped(y), n = x.length;
+  [GX, GY].forEach(G => { while (G.rows.length > 1 && G.rows[G.rows.length - 1].fi === 0) G.rows.pop(); G.trimmed = G.k - G.rows.length; G.k = G.rows.length; });
+  const M = GX.rows.map(() => GY.rows.map(() => 0));
+  x.forEach((v, i) => M[classIdx(GX, v)][classIdx(GY, y[i])]++);
+  const fx = M.map(r => sum(r)), fy = GY.rows.map((_, j) => sum(M.map(r => r[j])));
+  const mx = sum(GX.rows.map((r, i) => fx[i] * r.xi)) / n, my = sum(GY.rows.map((r, j) => fy[j] * r.xi)) / n;
+  const P = M.map((row, i) => row.map((f, j) => f * (GX.rows[i].xi - mx) * (GY.rows[j].xi - my)));
+  const sp = sum(P.map(sum)), cov = sp / (n - 1);
+  const sx = Math.sqrt(sum(GX.rows.map((r, i) => fx[i] * (r.xi - mx) ** 2)) / (n - 1)), sy = Math.sqrt(sum(GY.rows.map((r, j) => fy[j] * (r.xi - my) ** 2)) / (n - 1));
+  return { GX, GY, n, M, fx, fy, mx, my, P, sp, cov, sx, sy, r: cov / (sx * sy), raw: bStats(x, y) };
+}
+
+/* ============ escenarios ============ */
+function genPairs(k){
+  const R = mulberry32(k === 'clin' ? 41 : 43), g = gaussF(R);
+  if (k === 'clin'){
+    const x = Array.from({ length: 40 }, () => Math.max(0, Math.min(63, Math.round(Math.exp(Math.log(19) + 0.42 * g())))));
+    const y = x.map(v => Math.max(3, Math.min(10, Math.round(9.4 - 0.11 * v + 0.9 * g()))));
+    return { x, y };
+  }
+  const x = [14,22,31,9,18,25,27,12,20,33,16,24,29,19,8,21,26,17,23,36,15,28,22,11,30,19,25,13,21,34,24,18,27,10,20,32,23,26,17,22];
+  const y = x.map(v => Math.max(0, Math.min(10, Math.round(-2.2 + 0.2 * v + 1.1 * g()))));
+  return { x, y };
+}
+const SCEN = {
+  clin: {
+    u: [18, 24, 29, 15, 24, 36, 12, 24, 27, 20], uMax: 63, uVar: 'BDI-II', uWho: 'pacientes',
+    uIntro: 'Diez pacientes que inician tratamiento en un servicio de psicología clínica respondieron el Inventario de Depresión de Beck (BDI-II, puntaje de 0 a 63; a mayor puntaje, más síntomas depresivos).',
+    bx: [4, 10, 7, 12, 3, 9, 6, 11, 5, 8], by: [2, 8, 5, 9, 1, 6, 5, 10, 3, 6], bxN: 'Sesiones asistidas', byN: 'Reducción en BDI-II', bxS: 'X: sesiones', byS: 'Y: reducción',
+    bIntro: 'Para los mismos diez pacientes se registró cuántas de 12 sesiones de terapia cognitivo-conductual asistieron (X) y cuántos puntos bajó su BDI-II al terminar (Y).',
+    scaleLab: 'Expresar X en minutos de terapia (sesiones × 50)', scaleF: 50, scaleName: 'minutos',
+    gVar: 'BDI-II', gWho: 'pacientes', gIntro: 'Cuarenta pacientes de un servicio de salud mental respondieron el BDI-II. Los datos ya están organizados en una tabla de frecuencias agrupada con la regla de Sturges.',
+    gyN: 'Horas de sueño', gyS: 'Y: horas de sueño', gbIntro: 'A los mismos 40 pacientes se les preguntó cuántas horas duermen en promedio por noche. Cruzaremos los puntajes BDI-II (X) con las horas de sueño (Y) en una tabla de doble entrada.'
+  },
+  for: {
+    u: [72, 85, 64, 90, 78, 85, 69, 81, 85, 76], uMax: 120, uVar: 'BIS-11', uWho: 'internos',
+    uIntro: 'Diez internos de un centro penitenciario respondieron la Escala de Impulsividad de Barratt (BIS-11, puntaje de 30 a 120; a mayor puntaje, más impulsividad).',
+    bx: [65, 88, 72, 95, 70, 80, 76, 92, 68, 84], by: [1, 4, 2, 6, 0, 3, 2, 5, 1, 3], bxN: 'Puntaje BIS-11', byN: 'Reportes disciplinarios', bxS: 'X: BIS-11', byS: 'Y: reportes',
+    bIntro: 'Para diez internos se registró su puntaje de impulsividad BIS-11 (X) y el número de reportes disciplinarios que recibieron en el último año (Y).',
+    scaleLab: 'Expresar X como porcentaje del puntaje máximo (BIS-11 / 120 × 100)', scaleF: 100 / 120, scaleName: '% del máximo',
+    gVar: 'PCL-R', gWho: 'internos', gIntro: 'Cuarenta internos procesados por delitos violentos fueron evaluados con la Escala de Psicopatía de Hare Revisada (PCL-R, 0 a 40). Los datos ya están organizados en una tabla de frecuencias agrupada con la regla de Sturges.',
+    gyN: 'Incidentes disciplinarios', gyS: 'Y: incidentes', gbIntro: 'Para los mismos 40 internos se contó el número de incidentes disciplinarios en el último año. Cruzaremos los puntajes PCL-R (X) con los incidentes (Y) en una tabla de doble entrada.'
+  }
+};
+let SC, KEY;
+const ST = { u: null, uOwn: false, out: null, bx: null, by: null, bOwn: false, scale: false, g: null, gOwn: false, gb: null };
+
+/* ============ gráficas SVG ============ */
+function niceStep(range, target = 8){ const raw = range / target, p = 10 ** Math.floor(Math.log10(raw)); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= raw) return m * p; return 10 * p; }
+function dotplot(o){
+  const d = o.data, W = 640, ml = 34, mr = 34;
+  let lo = o.lo ?? Math.min(...d), hi = o.hi ?? Math.max(...d); if (hi === lo){ hi += 1; lo -= 1; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const X = v => ml + (v - lo) / (hi - lo) * (W - ml - mr);
+  const cnt = new Map(); const pts = [...d].sort((a, b) => a - b).map(v => { const c = cnt.get(v) || 0; cnt.set(v, c + 1); return [v, c]; });
+  const maxS = Math.max(...cnt.values()), dy = 16, top = 30 + (o.marks ? o.marks.length * 16 : 0);
+  const base = top + maxS * dy + 10, H = base + 44 + (o.fulcrum !== undefined ? 22 : 0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.aria || 'Gráfica de puntos'}">`;
+  if (o.band) s += `<rect class="band" x="${X(o.band[0])}" y="${top - 6}" width="${X(o.band[1]) - X(o.band[0])}" height="${base - top + 6}"/>`;
+  const st = niceStep(hi - lo);
+  for (let t = Math.ceil(lo / st) * st; t <= hi; t += st){ s += `<line class="axis" x1="${X(t)}" x2="${X(t)}" y1="${base}" y2="${base + 5}"/><text x="${X(t)}" y="${base + 19}" text-anchor="middle">${fv(t)}</text>`; }
+  s += `<line class="axis" x1="${ml}" x2="${W - mr}" y1="${base}" y2="${base}"/>`;
+  pts.forEach(([v, c]) => { s += `<circle class="dot ${o.hl && o.hl(v) ? 'hl' : ''}" cx="${X(v)}" cy="${base - 9 - c * dy}" r="6.5"><title>${fv(v)}</title></circle>`; });
+  (o.marks || []).forEach((m, i) => { const y = 16 + i * 16; s += `<line class="${m.cls}" x1="${X(m.x)}" x2="${X(m.x)}" y1="${y + 4}" y2="${base}"/><text class="lbl" x="${X(m.x) + 6}" y="${y + 4}">${m.label}</text>`; });
+  if (o.fulcrum !== undefined){ const fx = X(o.fulcrum); s += `<polygon class="ful" points="${fx},${base + 2} ${fx - 12},${base + 22} ${fx + 12},${base + 22}"/><text class="lbl" x="${fx}" y="${base + 38}" text-anchor="middle">x̄ = ${f2(o.fulcrum)}</text>`; }
+  if (o.xLabel) s += `<text class="lbl" x="${W / 2}" y="${H - 4}" text-anchor="middle">${o.xLabel}</text>`;
+  return s + '</svg>';
+}
+function devSVG(d, mean, showSq){
+  const n = d.length, W = 640, rowH = 28, top = 26, H = top + n * rowH + 36, ml = 44, plotR = showSq ? 440 : 610;
+  let lo = Math.min(...d, mean), hi = Math.max(...d, mean); const pad = (hi - lo) * .08 || 1; lo -= pad; hi += pad;
+  const X = v => ml + (v - lo) / (hi - lo) * (plotR - ml);
+  const maxDev = Math.max(...d.map(v => Math.abs(v - mean))) || 1;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Desviación de cada dato respecto a la media">`;
+  s += `<line class="mMean" x1="${X(mean)}" x2="${X(mean)}" y1="${top - 12}" y2="${top + n * rowH}"/><text class="lbl" x="${X(mean)}" y="${top - 16}" text-anchor="middle">x̄ = ${f2(mean)}</text>`;
+  d.forEach((v, i) => {
+    const y = top + i * rowH + rowH / 2, dv = v - mean;
+    s += `<text x="${ml - 10}" y="${y + 4}" text-anchor="end">${fv(v)}</text>`;
+    s += `<line class="${dv < 0 ? 'devn' : 'devp'}" x1="${X(mean)}" x2="${X(v)}" y1="${y}" y2="${y}"/><circle class="dot" cx="${X(v)}" cy="${y}" r="5.5"/>`;
+    if (showSq){ const side = Math.max(2, Math.abs(dv) / maxDev * 24); s += `<rect class="${dv < 0 ? 'sqn' : 'sqp'}" x="${470}" y="${y - side / 2}" width="${side}" height="${side}"/><text class="val" x="${505}" y="${y + 4}">${f2(dv * dv)}</text>`; }
+  });
+  if (showSq) s += `<text class="lbl" x="470" y="${top - 6}">(x − x̄)²</text>`;
+  s += `<text x="${ml}" y="${H - 8}">Barra dorada: el dato está por debajo de la media. Barra turquesa: por encima.</text>`;
+  return s + '</svg>';
+}
+function scatterSVG(x, y, o = {}){
+  const W = 640, H = 380, m = { l: 62, r: 24, t: 20, b: 52 };
+  let x0 = Math.min(...x), x1 = Math.max(...x), y0 = Math.min(...y), y1 = Math.max(...y);
+  const px = (x1 - x0) * .1 || 1, py = (y1 - y0) * .12 || 1; x0 -= px; x1 += px; y0 -= py; y1 += py;
+  const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Diagrama de dispersión">`;
+  if (o.means){
+    const mx = o.means[0], my = o.means[1];
+    s += `<rect class="quad" x="${X(mx)}" y="${m.t}" width="${W - m.r - X(mx)}" height="${Y(my) - m.t}"/><rect class="quad" x="${m.l}" y="${Y(my)}" width="${X(mx) - m.l}" height="${H - m.b - Y(my)}"/>`;
+    s += `<rect class="quadn" x="${m.l}" y="${m.t}" width="${X(mx) - m.l}" height="${Y(my) - m.t}"/><rect class="quadn" x="${X(mx)}" y="${Y(my)}" width="${W - m.r - X(mx)}" height="${H - m.b - Y(my)}"/>`;
+    s += `<line class="mMean" x1="${X(mx)}" x2="${X(mx)}" y1="${m.t}" y2="${H - m.b}"/><line class="mMean" x1="${m.l}" x2="${W - m.r}" y1="${Y(my)}" y2="${Y(my)}"/>`;
+    s += `<text class="lbl" x="${W - m.r - 6}" y="${m.t + 16}" text-anchor="end">(+)(+) = +</text><text class="lbl" x="${m.l + 6}" y="${H - m.b - 8}">(−)(−) = +</text><text class="lbl" x="${m.l + 6}" y="${m.t + 16}">(−)(+) = −</text><text class="lbl" x="${W - m.r - 6}" y="${H - m.b - 8}" text-anchor="end">(+)(−) = −</text>`;
+    s += `<text x="${X(mx) + 5}" y="${H - m.b - 26}">x̄ = ${f2(mx)}</text><text x="${m.l + 6}" y="${Y(my) - 6}">ȳ = ${f2(my)}</text>`;
+  }
+  const sx = niceStep(x1 - x0, 7), sy = niceStep(y1 - y0, 6);
+  for (let t = Math.ceil(x0 / sx) * sx; t <= x1; t += sx) s += `<line class="axis" x1="${X(t)}" x2="${X(t)}" y1="${H - m.b}" y2="${H - m.b + 5}"/><text x="${X(t)}" y="${H - m.b + 18}" text-anchor="middle">${fv(t)}</text>`;
+  for (let t = Math.ceil(y0 / sy) * sy; t <= y1; t += sy) s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${Y(t)}" y2="${Y(t)}" opacity=".5"/><text x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${fv(t)}</text>`;
+  s += `<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/><line class="axis" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}"/>`;
+  x.forEach((v, i) => { const cls = o.means ? ((v - o.means[0]) * (y[i] - o.means[1]) > 1e-9 ? 'pos' : (v - o.means[0]) * (y[i] - o.means[1]) < -1e-9 ? 'neg' : 'zero') : ''; s += `<circle class="dot ${cls}" cx="${X(v)}" cy="${Y(y[i])}" r="7"><title>Caso ${i + 1}: (${fv(v)}, ${fv(y[i])})</title></circle>`; if (o.labels) s += `<text class="val" x="${X(v) + 9}" y="${Y(y[i]) - 7}">${i + 1}</text>`; });
+  s += `<text class="lbl" x="${(m.l + W - m.r) / 2}" y="${H - 10}" text-anchor="middle">${o.xl}</text><text class="lbl" transform="translate(16 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">${o.yl}</text>`;
+  return s + '</svg>';
+}
+function histSVG(G, o = {}){
+  const rows = G.rows, A = G.A, W = 640, H = 330 + (o.marks ? o.marks.length * 16 : 0), m = { l: 50, r: 20, t: 20 + (o.marks ? o.marks.length * 16 : 0), b: 48 };
+  const x0 = rows[0].LRi - A * .6, x1 = rows[rows.length - 1].LRs + A * .6, mx = Math.max(...rows.map(r => r.fi)), st = niceStep(mx, 5), y1 = Math.ceil(mx * 1.12 / st) * st;
+  const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => H - m.b - v / y1 * (H - m.t - m.b);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Histograma">`;
+  for (let v = 0; v <= y1 + 1e-9; v += st) s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${fv(v)}</text>`;
+  if (o.band) s += `<rect class="band" x="${X(o.band[0])}" y="${m.t}" width="${X(o.band[1]) - X(o.band[0])}" height="${Y(0) - m.t}"/>`;
+  rows.forEach((r, i) => { s += `<rect class="bar ${o.hlIdx === i ? 'hl' : ''}" x="${X(r.LRi)}" y="${Y(r.fi)}" width="${X(r.LRs) - X(r.LRi)}" height="${Y(0) - Y(r.fi)}"><title>${fv(r.Li)}–${fv(r.Ls)}: f = ${r.fi}</title></rect><text class="val" x="${(X(r.LRi) + X(r.LRs)) / 2}" y="${Y(r.fi) - 5}" text-anchor="middle">${r.fi}</text>`; });
+  [rows[0].LRi, ...rows.map(r => r.LRs)].forEach(t => s += `<text x="${X(t)}" y="${H - m.b + 17}" text-anchor="middle">${fv(t)}</text>`);
+  if (o.czuber){
+    const i = o.czuber, r = rows[i], fp = i ? rows[i - 1].fi : 0, fn = i < rows.length - 1 ? rows[i + 1].fi : 0;
+    s += `<line class="czu" x1="${X(r.LRi)}" y1="${Y(r.fi)}" x2="${X(r.LRs)}" y2="${Y(fn)}"/><line class="czu" x1="${X(r.LRs)}" y1="${Y(r.fi)}" x2="${X(r.LRi)}" y2="${Y(fp)}"/>`;
+  }
+  (o.marks || []).forEach((mk, i) => { const y = 16 + i * 16; s += `<line class="${mk.cls}" x1="${X(mk.x)}" x2="${X(mk.x)}" y1="${y + 4}" y2="${Y(0)}"/><text class="lbl" x="${X(mk.x) + 6}" y="${y + 4}">${mk.label}</text>`; });
+  s += `<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${Y(0)}" y2="${Y(0)}"/><text class="lbl" x="${(m.l + W - m.r) / 2}" y="${H - 8}" text-anchor="middle">${o.xl || 'Límites reales de clase'}</text>`;
+  return s + '</svg>';
+}
+const legendMarks = (items) => `<div class="legend">${items.map(([c, l]) => `<span><i style="border-color:${c};${c.includes('teal') ? 'border-top-style:dashed' : c.includes('gold') ? 'border-top-style:dotted' : ''}"></i>${l}</span>`).join('')}</div>`;
+
+/* ============ tablas y stepper ============ */
+function table(cols, rows, vis, fresh, foot, rowHl){
+  const cls = k => !vis.includes(k) ? 'hid' : (fresh.includes(k) ? 'new' : '');
+  let h = `<div class="tscroll"><table class="t"><thead><tr>${cols.map(c => `<th class="${cls(c.k)}" scope="col">${c.h}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach((r, i) => h += `<tr class="${rowHl === i ? 'row-hl' : ''}">${cols.map(c => { const v = c.g(r, i); const sg = c.sign ? (c.sign(r, i) > 1e-9 ? 'pos' : c.sign(r, i) < -1e-9 ? 'neg' : '') : ''; return `<td class="${cls(c.k)} ${vis.includes(c.k) ? sg : ''}">${v}</td>`; }).join('')}</tr>`);
+  h += '</tbody>';
+  if (foot) h += `<tfoot><tr>${cols.map(c => `<td class="${cls(c.k)}">${c.f ?? ''}</td>`).join('')}</tr></tfoot>`;
+  return h + '</table></div>';
+}
+const STEPPERS = {};
+function buildStepper(id){
+  const host = document.querySelector(`[data-stepper="${id}"]`);
+  host.innerHTML = `<div class="stepper"><div class="explain" aria-live="polite"><div class="stepcount" id="${id}Count"></div><h3 class="st" id="${id}Title"></h3><div id="${id}Body"></div><div class="dots" id="${id}Dots"></div><div class="ctrl"><button class="btn ghost" id="${id}Prev">Paso anterior</button><button class="btn" id="${id}Next">Siguiente paso</button></div></div><div class="viz" id="${id}Viz"></div></div>`;
+  const st = { i: 0 };
+  st.go = i => {
+    const steps = STEPS[id](); st.i = Math.max(0, Math.min(steps.length - 1, i)); const s = steps[st.i];
+    $(`#${id}Count`).textContent = `Paso ${st.i + 1} de ${steps.length}`; $(`#${id}Title`).textContent = s.t; $(`#${id}Body`).innerHTML = s.b();
+    $(`#${id}Dots`).innerHTML = steps.map((x, j) => `<button aria-label="Ir al paso ${j + 1}: ${x.t}" class="${j === st.i ? 'cur' : j < st.i ? 'done' : ''}" data-j="${j}">${j + 1}</button>`).join('');
+    $(`#${id}Dots`).querySelectorAll('button').forEach(b => b.onclick = () => st.go(+b.dataset.j));
+    $(`#${id}Prev`).disabled = st.i === 0; $(`#${id}Next`).disabled = st.i === steps.length - 1;
+    $(`#${id}Viz`).innerHTML = s.v(); s.after && s.after();
+  };
+  $(`#${id}Prev`).onclick = () => st.go(st.i - 1); $(`#${id}Next`).onclick = () => st.go(st.i + 1);
+  STEPPERS[id] = st;
+}
+const stat = items => `<div class="stats">${items.map(([l, v, k]) => `<div class="${k ? 'key' : ''}"><span>${l}</span><strong>${v}</strong></div>`).join('')}</div>`;
+const chips = (arr, hl) => `<div class="chiprow">${arr.map((v, i) => `<span class="chip ${hl && hl(v, i) ? 'hl' : ''}">${fv(v)}</span>`).join('')}</div>`;
+
+/* ============ NO AGRUPADOS: tendencia central ============ */
+function uData(){ const d = [...ST.u]; if (ST.out !== null){ const i = d.indexOf(Math.max(...ST.u)); d[i] = ST.out; } return d; }
+const who = () => ST.uOwn ? 'casos' : SC.uWho;
+const STEPS = {};
+STEPS.utc = () => {
+  const d = ST.u, s = uStats(d), n = s.n, V = ST.uOwn ? 'la variable' : `el ${SC.uVar}`;
+  const modeTxt = s.modes.length === 0 ? 'Ningún valor se repite: la distribución es <strong>amodal</strong>.' : s.modes.length === 1 ? `La moda es <strong>${fv(s.modes[0])}</strong>, que aparece ${s.maxf} veces: distribución <strong>unimodal</strong>.` : `Hay ${s.modes.length} valores empatados con ${s.maxf} apariciones (${s.modes.map(fv).join(' y ')}): distribución <strong>${s.modes.length === 2 ? 'bimodal' : 'multimodal'}</strong>.`;
+  const pos = (n + 1) / 2;
+  const marks3 = (dd, ss) => [{ x: ss.mean, label: `Media ${f2(ss.mean)}`, cls: 'mMean' }, { x: ss.med, label: `Mediana ${fv(ss.med)}`, cls: 'mMed' }];
+  return [
+    { t: 'Observa los datos', b: () => `<p>Tienes n = <strong>${n}</strong> puntajes. Las medidas de tendencia central resumen en un solo número dónde se ubica el «centro» del grupo. Veremos tres, porque cada una responde a una pregunta distinta:</p><ul><li><strong>Media:</strong> ¿cuál es el punto de equilibrio?</li><li><strong>Mediana:</strong> ¿qué valor deja a la mitad de los casos de cada lado?</li><li><strong>Moda:</strong> ¿qué valor es el más frecuente?</li></ul>`,
+      v: () => `<p class="note">Datos en el orden en que se registraron</p>${chips(d)}${dotplot({ data: d, xLabel: ST.uOwn ? 'Valor' : `Puntaje ${SC.uVar}` })}` },
+    { t: 'Media: suma todos los valores', b: () => `<p>La media aritmética usa <strong>todos</strong> los datos. El primer paso es sumarlos. La letra griega Σ (sigma) significa «suma de».</p><div class="formula">Σx = ${listSum(d)} = <strong>${fv(s.S)}</strong></div>`,
+      v: () => `${chips(d, () => true)}${stat([['n', n], ['Σx', fv(s.S), 1]])}` },
+    { t: 'Media: divide entre n', b: () => `<div class="formula">x̄ = Σx / n = ${fv(s.S)} / ${n} = <strong>${f2(s.mean)}</strong></div><p>Si los datos fueran toda la población, se escribe μ (mu) y se divide entre N; el cálculo es igual.</p><p><strong>Interpretación:</strong> el puntaje promedio de estos ${who()} es ${f2(s.mean)}. La media es el <strong>punto de equilibrio</strong>: si cada dato fuera un peso sobre una regla, la regla se equilibraría justo en x̄.</p>`,
+      v: () => `${dotplot({ data: d, fulcrum: s.mean, xLabel: ST.uOwn ? 'Valor' : `Puntaje ${SC.uVar}` })}${stat([['Media x̄', f2(s.mean), 1]])}` },
+    { t: 'Comprueba el equilibrio', b: () => `<p>Resta la media a cada dato: x − x̄. Los datos por debajo dan desviaciones negativas y los de arriba, positivas.</p><p>La suma de todas las desviaciones siempre es <strong>cero</strong> (salvo redondeo). Esa es la definición matemática del equilibrio y, como verás en el tema 2, la razón por la que para medir la dispersión hay que elevar al cuadrado.</p>`,
+      v: () => table([{ k: 'i', h: 'Caso', g: (r, i) => i + 1, f: 'Σ' }, { k: 'x', h: 'x', g: r => fv(r), f: fv(s.S) }, { k: 'd', h: 'x − x̄', g: (r, i) => f2(s.dev[i]), sign: (r, i) => s.dev[i], f: f2(sum(s.dev)) }], d, ['i', 'x', 'd'], ['d'], true) },
+    { t: 'Mediana: ordena los datos', b: () => `<p>La mediana es el valor que ocupa la <strong>posición central</strong> de los datos ordenados. Primero ordénalos de menor a mayor.</p><div class="formula">Posición de la mediana = (n + 1) / 2 = (${n} + 1) / 2 = <strong>${pos}</strong></div>`,
+      v: () => `<p class="note">Datos ordenados</p>${chips(s.sorted)}` },
+    { t: 'Mediana: localiza el centro', b: () => n % 2 ? `<p>Como n es <strong>impar</strong>, la mediana es el dato que ocupa la posición ${pos}:</p><div class="formula">Me = x<sub>(${pos})</sub> = <strong>${fv(s.med)}</strong></div><p>Si n fuera par, promediarías los dos datos centrales.</p>` : `<p>Como n es <strong>par</strong>, la posición ${pos} cae entre dos datos: el ${n / 2}.° y el ${n / 2 + 1}.°. La mediana es su promedio:</p><div class="formula">Me = (x<sub>(${n / 2})</sub> + x<sub>(${n / 2 + 1})</sub>) / 2 = (${fv(s.sorted[n / 2 - 1])} + ${fv(s.sorted[n / 2])}) / 2 = <strong>${fv(s.med)}</strong></div><p>Si n fuera impar, sería directamente el dato central.</p>` + `<p><strong>Interpretación:</strong> la mitad de los ${who()} obtuvo ${fv(s.med)} o menos, y la otra mitad ${fv(s.med)} o más.</p>`,
+      v: () => `${chips(s.sorted, (v, i) => n % 2 ? i === (n - 1) / 2 : (i === n / 2 - 1 || i === n / 2))}${dotplot({ data: d, marks: [{ x: s.med, label: `Mediana ${fv(s.med)}`, cls: 'mMed' }] })}` },
+    { t: 'Moda: cuenta las frecuencias', b: () => `<p>La moda es el valor que más se repite. Cuenta cuántas veces aparece cada valor.</p><p>${modeTxt}</p><p>La moda es la <strong>única</strong> medida de tendencia central que sirve para variables nominales: por ejemplo, el diagnóstico más frecuente en un servicio ${SC === SCEN.for ? 'o el tipo de delito más común en un centro' : 'o el motivo de consulta más común'}.</p>`,
+      v: () => { const fr = [...s.fr.entries()].sort((a, b) => a[0] - b[0]); return `${dotplot({ data: d, hl: v => s.modes.includes(v), marks: s.modes.map(m => ({ x: m, label: `Moda ${fv(m)}`, cls: 'mMode' })) })}<div class="tscroll"><table class="t"><tr><th>Valor</th>${fr.map(([v]) => `<td>${fv(v)}</td>`).join('')}</tr><tr><th>Frecuencia</th>${fr.map(([v, f]) => `<td class="${f === s.maxf && s.maxf > 1 ? 'new' : ''}">${f}</td>`).join('')}</tr></table></div>`; } },
+    { t: 'Compara las tres y prueba con un dato atípico', b: () => `<p>Mueve el control para cambiar el puntaje más alto y observa qué pasa.</p><ul><li>La <strong>media</strong> se mueve con cualquier cambio: es sensible a los datos atípicos.</li><li>La <strong>mediana</strong> casi no cambia: es una medida <strong>robusta</strong>.</li><li>Si la media queda por arriba de la mediana, la distribución tiene <strong>sesgo positivo</strong> (cola hacia valores altos); si queda por abajo, sesgo negativo.</li></ul><p><strong>¿Cuál reportar?</strong> Con datos simétricos, la media. Con datos sesgados o con casos extremos, como ${SC === SCEN.for ? 'un interno con un puntaje excepcional' : 'un paciente en crisis con un puntaje muy alto'}, reporta la mediana o ambas.</p>`,
+      v: () => { const dd = uData(), ss = uStats(dd), mx = Math.max(...ST.u), lim = ST.uOwn ? Math.max(mx * 3, mx + 10) : SC.uMax;
+        return `<div class="slider"><label for="outS">Dato más alto</label><input id="outS" type="range" min="${mx}" max="${lim}" step="1" value="${ST.out ?? mx}"><strong class="note" style="color:var(--ink)">${fv(ST.out ?? mx)}</strong></div>${legendMarks([['var(--blue)', 'Media'], ['var(--teal)', 'Mediana']])}${dotplot({ data: dd, marks: marks3(dd, ss), lo: Math.min(...ST.u), hi: lim })}${stat([['Media', f2(ss.mean), 1], ['Mediana', fv(ss.med), 1], ['Moda', ss.modes.length ? ss.modes.map(fv).join(', ') : 'No hay'], ['Media − mediana', f2(ss.mean - ss.med)]])}`; },
+      after: () => { $('#outS').oninput = e => { ST.out = +e.target.value; STEPPERS.utc.go(STEPPERS.utc.i); $('#outS').focus(); }; } }
+  ];
+};
+
+/* ============ NO AGRUPADOS: dispersión ============ */
+STEPS.udi = () => {
+  const d = ST.u, s = uStats(d), n = s.n;
+  const A = [-3, -2, -1, 0, 1, 2, 3].map(k => s.mean + k * Math.max(1, s.sd * .35)), B = [-3, -2, -1, 0, 1, 2, 3].map(k => s.mean + k * Math.max(2, s.sd * 1.3));
+  const zi = s.dev.map(v => v / s.sd), idx = s.dev.indexOf(Math.max(...s.dev));
+  const within = d.filter(x => x >= s.mean - s.sd && x <= s.mean + s.sd).length;
+  const cols = [{ k: 'i', h: 'Caso', g: (r, i) => i + 1, f: 'Σ' }, { k: 'x', h: 'x', g: r => fv(r), f: fv(s.S) }, { k: 'd', h: 'x − x̄', g: (r, i) => f2(s.dev[i]), sign: (r, i) => s.dev[i], f: f2(sum(s.dev)) }, { k: 'q', h: '(x − x̄)²', g: (r, i) => f2(s.sq[i]), f: f2(s.ss) }, { k: 'z', h: 'z = (x − x̄) / s', g: (r, i) => f2(zi[i]), sign: (r, i) => zi[i] }];
+  return [
+    { t: 'El centro no basta', b: () => `<p>Dos grupos pueden tener la misma media y ser muy distintos. A la derecha, ambos grupos promedian ${f2(s.mean)}, pero en el primero todos puntúan parecido y en el segundo hay casos muy bajos y muy altos.</p><p>Clínicamente no es lo mismo: un grupo homogéneo sugiere necesidades parecidas, mientras que uno disperso pide atención individualizada. Las <strong>medidas de dispersión</strong> cuantifican esa diferencia.</p>`,
+      v: () => `<p class="note">Grupo 1 (s = ${f2(uStats(A).sd)})</p>${dotplot({ data: A, lo: Math.min(...B), hi: Math.max(...B), marks: [{ x: s.mean, label: 'Media', cls: 'mMean' }] })}<p class="note">Grupo 2 (s = ${f2(uStats(B).sd)})</p>${dotplot({ data: B, marks: [{ x: s.mean, label: 'Media', cls: 'mMean' }] })}` },
+    { t: 'Rango', b: () => `<p>La medida de dispersión más simple:</p><div class="formula">R = x<sub>máx</sub> − x<sub>mín</sub> = ${fv(s.max)} − ${fv(s.min)} = <strong>${fv(s.max - s.min)}</strong></div><p>Es fácil de calcular, pero solo usa dos datos: un único caso extremo lo cambia por completo. Por eso necesitamos una medida que use todos los datos.</p>`,
+      v: () => `${chips(s.sorted, (v, i) => i === 0 || i === n - 1)}${stat([['Mínimo', fv(s.min)], ['Máximo', fv(s.max)], ['Rango', fv(s.max - s.min), 1]])}` },
+    { t: 'Calcula las desviaciones', b: () => `<p>Una idea natural: medir cuánto se aleja cada dato de la media, x − x̄.</p><p>Pero si las promedias, obtienes cero, porque las negativas y las positivas se cancelan. Hay que eliminar el signo. La solución estadística estándar es <strong>elevar al cuadrado</strong>.</p>`,
+      v: () => table(cols, d, ['i', 'x', 'd'], ['d'], true) + devSVG(d, s.mean, false) },
+    { t: 'Eleva cada desviación al cuadrado', b: () => `<p>Al elevar al cuadrado todas las desviaciones quedan positivas, y los datos más alejados pesan mucho más (el doble de distancia es cuatro veces el cuadrado).</p><p>La suma de los cuadrados se llama <strong>suma de cuadrados</strong> (SC):</p><div class="formula">SC = Σ(x − x̄)² = ${listSum(s.sq, f2)} = <strong>${f2(s.ss)}</strong></div>`,
+      v: () => table(cols, d, ['i', 'x', 'd', 'q'], ['q'], true) + devSVG(d, s.mean, true) },
+    { t: 'Varianza', b: () => `<p>La varianza es el promedio de los cuadrados. Con una <strong>muestra</strong> se divide entre n − 1:</p><div class="formula">s² = SC / (n − 1) = ${f2(s.ss)} / ${n - 1} = <strong>${f2(s.varS)}</strong></div><p>Si los datos son <strong>toda la población</strong>, se divide entre N:</p><div class="formula">σ² = SC / N = ${f2(s.ss)} / ${n} = ${f2(s.varP)}</div><p><strong>¿Por qué n − 1?</strong> Las desviaciones se calcularon respecto a x̄, que sale de la misma muestra; por eso tienden a ser un poco más pequeñas que respecto a la verdadera μ. Dividir entre n − 1 (los <strong>grados de libertad</strong>) corrige esa subestimación.</p><p class="note">La varianza queda en unidades al cuadrado («puntos² de ${ST.uOwn ? 'la escala' : SC.uVar}»), difíciles de interpretar.</p>`,
+      v: () => `${devSVG(d, s.mean, true)}${stat([['SC', f2(s.ss)], ['s² (muestral)', f2(s.varS), 1], ['σ² (poblacional)', f2(s.varP)]])}` },
+    { t: 'Desviación estándar', b: () => `<p>Para regresar a las unidades originales, saca la raíz cuadrada:</p><div class="formula">s = √s² = √${f2(s.varS)} = <strong>${f2(s.sd)}</strong></div><p><strong>Interpretación:</strong> en promedio, los puntajes se alejan unos ${f2(s.sd)} puntos de la media.</p><p>El intervalo x̄ ± s va de ${f2(s.mean - s.sd)} a ${f2(s.mean + s.sd)} y contiene a ${within} de ${n} ${who()} (${f1(within / n * 100)}%). En distribuciones aproximadamente normales, cerca de 68% de los casos cae en ese intervalo.</p>`,
+      v: () => `${dotplot({ data: d, band: [s.mean - s.sd, s.mean + s.sd], marks: [{ x: s.mean, label: `x̄ = ${f2(s.mean)}`, cls: 'mMean' }], xLabel: 'La franja sombreada es x̄ ± s' })}${stat([['s', f2(s.sd), 1], ['x̄ − s', f2(s.mean - s.sd)], ['x̄ + s', f2(s.mean + s.sd)], ['Casos dentro', `${within} de ${n}`]])}` },
+    { t: 'Coeficiente de variación', b: () => `<p>La desviación estándar depende de la escala: 5 puntos es mucho en una prueba de 0 a 27 y poco en una de 30 a 120. Para comparar la variabilidad entre instrumentos o grupos con medias distintas se usa el coeficiente de variación:</p><div class="formula">CV = (s / x̄) × 100 = (${f2(s.sd)} / ${f2(s.mean)}) × 100 = <strong>${f1(s.cv)}%</strong></div><p>Como orientación, muchos textos consideran un CV menor a 15% como grupo homogéneo y mayor a 30% como muy heterogéneo; los criterios varían por disciplina. Solo tiene sentido con variables de razón, de valores positivos.</p>`,
+      v: () => stat([['x̄', f2(s.mean)], ['s', f2(s.sd)], ['CV', f1(s.cv) + '%', 1]]) },
+    { t: 'Aplicación: puntaje z', b: () => `<p>Con la media y la desviación estándar puedes ubicar a cada persona respecto a su grupo:</p><div class="formula">z = (x − x̄) / s<br>Caso ${idx + 1}: z = (${fv(d[idx])} − ${f2(s.mean)}) / ${f2(s.sd)} = <strong>${f2(zi[idx])}</strong></div><p>Ese ${ST.uOwn ? 'caso' : SC.uWho.slice(0, -1)} está ${f2(Math.abs(zi[idx]))} desviaciones estándar ${zi[idx] >= 0 ? 'por encima' : 'por debajo'} de la media. Así funcionan los baremos de las pruebas psicológicas: convierten un puntaje bruto en su distancia a la media del grupo normativo (z, puntaje T = 50 + 10z, CI = 100 + 15z).</p>`,
+      v: () => table(cols, d, ['i', 'x', 'd', 'q', 'z'], ['z'], true) }
+  ];
+};
+
+/* ============ NO AGRUPADOS: covarianza ============ */
+STEPS.ucv = () => {
+  const x = ST.scale ? ST.bx.map(v => v * SC.scaleF) : ST.bx, y = ST.by, b = bStats(x, y), n = b.n, bo = bStats(ST.bx, y);
+  const xl = ST.bOwn ? 'X' : SC.bxN + (ST.scale ? ` (${SC.scaleName})` : ''), yl = ST.bOwn ? 'Y' : SC.byN;
+  const nPos = b.pr.filter(v => v > 1e-9).length, nNeg = b.pr.filter(v => v < -1e-9).length;
+  const cols = [{ k: 'i', h: 'Caso', g: (r, i) => i + 1, f: 'Σ' }, { k: 'x', h: 'x', g: (r, i) => fv(x[i]), f: fv(sum(x)) }, { k: 'y', h: 'y', g: (r, i) => fv(y[i]), f: fv(sum(y)) }, { k: 'dx', h: 'x − x̄', g: (r, i) => f2(b.dx[i]), sign: (r, i) => b.dx[i], f: f2(sum(b.dx)) }, { k: 'dy', h: 'y − ȳ', g: (r, i) => f2(b.dy[i]), sign: (r, i) => b.dy[i], f: f2(sum(b.dy)) }, { k: 'p', h: '(x − x̄)(y − ȳ)', g: (r, i) => f2(b.pr[i]), sign: (r, i) => b.pr[i], f: f2(b.sp) }];
+  const T = (vis, fr) => table(cols, x, vis, fr, true);
+  const sign = b.cov > 0 ? 'positiva' : b.cov < 0 ? 'negativa' : 'nula';
+  const strength = Math.abs(b.r) >= .7 ? 'fuerte' : Math.abs(b.r) >= .4 ? 'moderada' : Math.abs(b.r) >= .1 ? 'débil' : 'prácticamente nula';
+  return [
+    { t: 'Dos variables medidas en los mismos casos', b: () => `<p>La covarianza describe si dos variables <strong>varían juntas</strong>. Necesitas datos pareados: para cada ${ST.bOwn ? 'caso' : SC.uWho.slice(0, -1)} tienes un valor de X y uno de Y.</p><p>La pregunta es: cuando X está por arriba de su media, ¿Y también tiende a estar por arriba (relación positiva), por abajo (negativa) o da igual?</p>`,
+      v: () => T(['i', 'x', 'y'], []) },
+    { t: 'Grafica el diagrama de dispersión', b: () => `<p>Cada punto es un caso, ubicado en (x, y). Antes de calcular, mira la nube: ¿sube, baja o no tiene dirección?</p><p>La covarianza solo detecta relaciones <strong>lineales</strong>; si la nube tiene forma de U, puede salir cercana a cero aunque haya relación.</p>`,
+      v: () => scatterSVG(x, y, { xl, yl, labels: true }) },
+    { t: 'Calcula las medias y divide en cuadrantes', b: () => `<div class="formula">x̄ = Σx / n = ${fv(sum(x))} / ${n} = <strong>${f2(b.mx)}</strong><br>ȳ = Σy / n = ${fv(sum(y))} / ${n} = <strong>${f2(b.my)}</strong></div><p>Las líneas de las medias dividen el plano en cuatro cuadrantes. Los puntos en las zonas turquesa (arriba a la derecha y abajo a la izquierda) empujan la covarianza hacia valores positivos; los de las zonas doradas, hacia negativos.</p>`,
+      v: () => scatterSVG(x, y, { xl, yl, labels: true, means: [b.mx, b.my] }) },
+    { t: 'Calcula las desviaciones de cada variable', b: () => `<p>Para cada caso calcula cuánto se aleja de su media en X y en Y. El signo te dice en qué lado de cada línea está el punto.</p>`,
+      v: () => T(['i', 'x', 'y', 'dx', 'dy'], ['dx', 'dy']) },
+    { t: 'Multiplica las desviaciones', b: () => `<p>Multiplica (x − x̄) por (y − ȳ) en cada renglón.</p><ul><li>Si ambas desviaciones tienen el mismo signo, el producto es <strong>positivo</strong>: el caso está alto en ambas o bajo en ambas.</li><li>Si tienen signos opuestos, el producto es <strong>negativo</strong>.</li></ul><p>Aquí hay ${nPos} productos positivos y ${nNeg} negativos.</p>`,
+      v: () => T(['i', 'x', 'y', 'dx', 'dy', 'p'], ['p']) + scatterSVG(x, y, { xl, yl, means: [b.mx, b.my] }) },
+    { t: 'Suma y divide entre n − 1', b: () => `<div class="formula">S<sub>xy</sub> = Σ(x − x̄)(y − ȳ) / (n − 1) = ${f2(b.sp)} / ${n - 1} = <strong>${f2(b.cov)}</strong></div><p>La covarianza es <strong>${sign}</strong>. ${b.cov > 0 ? `Los ${ST.bOwn ? 'casos' : SC.uWho} con valores altos en X tienden a tener valores altos en Y.` : b.cov < 0 ? 'Cuando X es alta, Y tiende a ser baja.' : 'No hay tendencia lineal conjunta.'}</p><p class="note">Con datos de toda la población se divide entre N. Nota que la varianza es un caso especial: la covarianza de una variable consigo misma, S<sub>xx</sub> = s²<sub>x</sub>.</p>`,
+      v: () => `${T(['i', 'x', 'y', 'dx', 'dy', 'p'], [])}${stat([['Σ productos', f2(b.sp)], ['S<sub>xy</sub>', f2(b.cov), 1]])}` },
+    { t: 'El problema de las unidades: la correlación', b: () => `<p>La covarianza depende de las unidades de medida. Activa la casilla: ${SC.scaleLab.toLowerCase()} y mira cómo cambia S<sub>xy</sub> aunque la relación sea exactamente la misma.</p><p>Por eso su valor no dice si la relación es fuerte o débil. La solución es dividir entre las desviaciones estándar: el <strong>coeficiente de correlación de Pearson</strong>, que va de −1 a +1 y no tiene unidades.</p><div class="formula">r = S<sub>xy</sub> / (s<sub>x</sub> · s<sub>y</sub>) = ${f2(b.cov)} / (${f2(b.sx)} · ${f2(b.sy)}) = <strong>${f2(b.r)}</strong></div><p>Aquí la relación es ${sign} y ${strength}.</p>`,
+      v: () => `${ST.bOwn ? '' : `<div class="opts"><label><input type="checkbox" id="scaleCk" ${ST.scale ? 'checked' : ''}> ${SC.scaleLab}</label></div>`}${stat([['S<sub>xy</sub>', f2(b.cov), 1], ['s<sub>x</sub>', f2(b.sx)], ['s<sub>y</sub>', f2(b.sy)], ['r', f2(b.r), 1]])}<p class="note">${ST.scale ? `Con X original: S<sub>xy</sub> = ${f2(bo.cov)} y r = ${f2(bo.r)}. La covarianza cambió; r no.` : 'Activa la casilla para cambiar las unidades de X.'}</p>${scatterSVG(x, y, { xl, yl, means: [b.mx, b.my] })}`,
+      after: () => { const c = $('#scaleCk'); if (c) c.onchange = e => { ST.scale = e.target.checked; STEPPERS.ucv.go(STEPPERS.ucv.i); }; } },
+    { t: 'Cuidados al interpretar', b: () => `<ul><li><strong>Covariación no es causalidad.</strong> ${SC === SCEN.for ? 'Que la impulsividad covaríe con los reportes no prueba que la cause: el tiempo en prisión o el tipo de estancia pueden influir en ambas.' : 'Que asistir a más sesiones covaríe con mayor mejoría no prueba que las sesiones la causen: los pacientes más motivados pueden asistir más y también mejorar más.'}</li><li><strong>Solo capta relaciones lineales.</strong> Siempre mira el diagrama de dispersión.</li><li><strong>Es sensible a casos atípicos.</strong> Un solo punto extremo puede cambiar el signo.</li><li><strong>Restricción de rango:</strong> si solo estudias casos con valores parecidos de X, la covarianza se reduce aunque la relación exista.</li></ul>`,
+      v: () => scatterSVG(x, y, { xl, yl, means: [b.mx, b.my] }) }
+  ];
+};
+
+/* ============ AGRUPADOS: tendencia central ============ */
+const gWho = () => ST.gOwn ? 'casos' : SC.gWho;
+const gCols = (G, S) => [
+  { k: 'c', h: 'Clase', g: r => `${fv(r.Li)} – ${fv(r.Ls)}`, f: 'Σ' },
+  { k: 'lr', h: 'Límites reales', g: r => `${fv(r.LRi)} – ${fv(r.LRs)}` },
+  { k: 'x', h: 'x<sub>i</sub>', g: r => fv(r.xi) },
+  { k: 'f', h: 'f<sub>i</sub>', g: r => r.fi, f: G.n },
+  { k: 'F', h: 'F<sub>i</sub>', g: r => r.Fi },
+  { k: 'fx', h: 'f<sub>i</sub> · x<sub>i</sub>', g: r => fv(r.fx), f: fv(S.sfx) },
+  { k: 'd', h: 'x<sub>i</sub> − x̄', g: r => f2(r.dev), sign: r => r.dev },
+  { k: 'd2', h: '(x<sub>i</sub> − x̄)²', g: r => f2(r.dev2) },
+  { k: 'fd2', h: 'f<sub>i</sub> (x<sub>i</sub> − x̄)²', g: r => f2(r.fdev2), f: f2(S.ss) }
+];
+STEPS.gtc = () => {
+  const G = ST.g, S = gStats(G), u = uStats(G.data), n = G.n, A = G.A, rows = G.rows, mr = rows[S.mi], mo = rows[S.moi];
+  const cols = gCols(G, S), T = (vis, fr, hl) => table(cols, rows, vis, fr, true, hl);
+  const xl = ST.gOwn ? 'Límites reales de clase' : `Puntaje ${SC.gVar} (límites reales)`;
+  const shape = S.mean - S.median > .5 ? 'positivo: la cola se extiende hacia los puntajes altos y jala la media hacia arriba' : S.mean - S.median < -.5 ? 'negativo: la cola se extiende hacia los puntajes bajos' : 'casi nulo: la distribución es aproximadamente simétrica';
+  return [
+    { t: 'Parte de la tabla de frecuencias', b: () => `<p>Con datos agrupados ya no ves cada valor, solo cuántos casos hay en cada clase. Por eso las medidas se <strong>aproximan</strong> suponiendo que los datos de cada clase se reparten de forma uniforme dentro de ella, o que todos valen su marca de clase x<sub>i</sub>.</p><p>Necesitas: límites reales, marca de clase x<sub>i</sub>, frecuencia f<sub>i</sub> y frecuencia acumulada F<sub>i</sub>. Aquí n = ${n}, k = ${G.k} clases y amplitud A = ${fv(A)}.</p>`,
+      v: () => T(['c', 'lr', 'x', 'f', 'F'], []) + histSVG(G, { xl }) },
+    { t: 'Media: multiplica marcas por frecuencias', b: () => `<p>Cada marca de clase representa a todos los casos de su clase, así que se multiplica por su frecuencia: f<sub>i</sub> · x<sub>i</sub>.</p><div class="formula">Clase 1: ${rows[0].fi} × ${fv(rows[0].xi)} = ${fv(rows[0].fx)}<br>Σf<sub>i</sub>x<sub>i</sub> = ${listSum(rows.map(r => r.fx))} = <strong>${fv(S.sfx)}</strong></div>`,
+      v: () => T(['c', 'lr', 'x', 'f', 'F', 'fx'], ['fx']) },
+    { t: 'Media: divide entre n', b: () => `<div class="formula">x̄ = Σf<sub>i</sub>x<sub>i</sub> / n = ${fv(S.sfx)} / ${n} = <strong>${f2(S.mean)}</strong></div><p>Con los datos originales la media es ${f2(u.mean)}. La diferencia (${f2(S.mean - u.mean)}) es el precio de agrupar: la aproximación suele ser muy buena.</p>`,
+      v: () => `${histSVG(G, { xl, marks: [{ x: S.mean, label: `x̄ = ${f2(S.mean)}`, cls: 'mMean' }] })}${stat([['x̄ agrupada', f2(S.mean), 1], ['x̄ con datos crudos', f2(u.mean)]])}` },
+    { t: 'Mediana: ubica la clase mediana', b: () => `<p>La mediana deja a la mitad de los casos de cada lado. Primero busca en qué clase está el caso central:</p><div class="formula">n / 2 = ${n} / 2 = <strong>${fv(S.half)}</strong></div><p>La clase mediana es la primera cuya frecuencia acumulada F<sub>i</sub> alcanza o supera ${fv(S.half)}: la clase <strong>${fv(mr.Li)}–${fv(mr.Ls)}</strong> (F<sub>i</sub> = ${mr.Fi}).</p><p class="note">Con datos agrupados se usa n/2, no (n + 1)/2.</p>`,
+      v: () => T(['c', 'lr', 'x', 'f', 'F'], ['F'], S.mi) + histSVG(G, { xl, hlIdx: S.mi }) },
+    { t: 'Mediana: interpola dentro de la clase', b: () => `<div class="formula">Me = L<sub>i</sub> + [(n/2 − F<sub>i−1</sub>) / f<sub>i</sub>] · A</div><ul><li>L<sub>i</sub> = límite real inferior de la clase mediana = ${fv(mr.LRi)}</li><li>F<sub>i−1</sub> = frecuencia acumulada de la clase anterior = ${S.Fprev}</li><li>f<sub>i</sub> = frecuencia de la clase mediana = ${mr.fi}</li><li>A = amplitud = ${fv(A)}</li></ul><div class="formula">Me = ${fv(mr.LRi)} + [(${fv(S.half)} − ${S.Fprev}) / ${mr.fi}] · ${fv(A)} = ${fv(mr.LRi)} + ${f2((S.half - S.Fprev) / mr.fi * A)} = <strong>${f2(S.median)}</strong></div><p>La lógica: antes de la clase ya hay ${S.Fprev} casos; faltan ${fv(S.half - S.Fprev)} para llegar a la mitad, que son esa fracción de los ${mr.fi} casos de la clase, y avanzamos la misma fracción de su ancho.</p>`,
+      v: () => `${histSVG(G, { xl, hlIdx: S.mi, marks: [{ x: S.median, label: `Me = ${f2(S.median)}`, cls: 'mMed' }] })}${stat([['Me agrupada', f2(S.median), 1], ['Me con datos crudos', fv(u.med)]])}` },
+    { t: 'Moda: ubica la clase modal', b: () => `<p>La clase modal es la de mayor frecuencia: <strong>${fv(mo.Li)}–${fv(mo.Ls)}</strong>, con f = ${mo.fi}.${S.nModal > 1 ? ` <span class="note">Hay ${S.nModal} clases empatadas; tomamos la primera. Una distribución bimodal suele indicar dos subgrupos.</span>` : ''}</p><p>Para ubicar la moda dentro de la clase se compara su frecuencia con la de sus vecinas:</p><div class="formula">d<sub>1</sub> = f<sub>modal</sub> − f<sub>anterior</sub> = ${mo.fi} − ${S.fprev} = ${S.d1}<br>d<sub>2</sub> = f<sub>modal</sub> − f<sub>siguiente</sub> = ${mo.fi} − ${S.fnext} = ${S.d2}</div>`,
+      v: () => T(['c', 'lr', 'x', 'f', 'F'], ['f'], S.moi) + histSVG(G, { xl, hlIdx: S.moi }) },
+    { t: 'Moda: fórmula y construcción gráfica', b: () => `<div class="formula">Mo = L<sub>i</sub> + [d<sub>1</sub> / (d<sub>1</sub> + d<sub>2</sub>)] · A<br>Mo = ${fv(mo.LRi)} + [${S.d1} / (${S.d1} + ${S.d2})] · ${fv(A)} = <strong>${f2(S.mode)}</strong></div><p>La moda se desplaza hacia la vecina con más frecuencia. En el histograma se obtiene gráficamente: une la esquina superior izquierda de la barra modal con la esquina superior izquierda de la siguiente, y la esquina superior derecha de la modal con la superior derecha de la anterior. El cruce de las líneas marca la moda.</p><p class="note">Con datos crudos, la moda era ${u.modes.length ? u.modes.map(fv).join(', ') : 'inexistente (ningún valor se repetía)'}.</p>`,
+      v: () => histSVG(G, { xl, hlIdx: S.moi, czuber: S.moi, marks: [{ x: S.mode, label: `Mo = ${f2(S.mode)}`, cls: 'mMode' }] }) },
+    { t: 'Compara las tres medidas', b: () => `<p>Las tres medidas juntas describen la forma de la distribución:</p><div class="formula">Mo = ${f2(S.mode)} &nbsp;&nbsp; Me = ${f2(S.median)} &nbsp;&nbsp; x̄ = ${f2(S.mean)}</div><p>El sesgo es ${shape}.</p><ul><li>Simétrica: media ≈ mediana ≈ moda.</li><li>Sesgo positivo: moda &lt; mediana &lt; media. Es común en escalas de síntomas aplicadas a población general.</li><li>Sesgo negativo: media &lt; mediana &lt; moda.</li></ul>`,
+      v: () => `${legendMarks([['var(--blue)', 'Media'], ['var(--teal)', 'Mediana'], ['var(--gold)', 'Moda']])}${histSVG(G, { xl, marks: [{ x: S.mean, label: `x̄ ${f2(S.mean)}`, cls: 'mMean' }, { x: S.median, label: `Me ${f2(S.median)}`, cls: 'mMed' }, { x: S.mode, label: `Mo ${f2(S.mode)}`, cls: 'mMode' }] })}<div class="tscroll"><table class="t"><tr><th>Medida</th><th>Agrupados</th><th>Datos crudos</th></tr><tr><td>Media</td><td>${f2(S.mean)}</td><td>${f2(u.mean)}</td></tr><tr><td>Mediana</td><td>${f2(S.median)}</td><td>${fv(u.med)}</td></tr><tr><td>Moda</td><td>${f2(S.mode)}</td><td>${u.modes.length ? u.modes.map(fv).join(', ') : '—'}</td></tr></table></div>` }
+  ];
+};
+
+/* ============ AGRUPADOS: dispersión ============ */
+STEPS.gdi = () => {
+  const G = ST.g, S = gStats(G), u = uStats(G.data), n = G.n, rows = G.rows, cols = gCols(G, S), T = (vis, fr) => table(cols, rows, vis, fr, true);
+  const xl = ST.gOwn ? 'Límites reales de clase' : `Puntaje ${SC.gVar} (límites reales)`, r0 = rows[0];
+  const Rg = rows[rows.length - 1].LRs - r0.LRi;
+  return [
+    { t: 'Rango aproximado', b: () => `<p>Con datos agrupados no conoces el mínimo ni el máximo exactos. Se aproxima con los límites reales extremos:</p><div class="formula">R ≈ LR<sub>s</sub> (última clase) − LR<sub>i</sub> (primera clase) = ${fv(rows[rows.length - 1].LRs)} − ${fv(r0.LRi)} = <strong>${fv(Rg)}</strong></div><p>Con los datos crudos era ${fv(u.max - u.min)}. El agrupado sobreestima un poco porque las clases cubren valores que nadie obtuvo.</p>`,
+      v: () => T(['c', 'lr', 'x', 'f'], ['lr']) },
+    { t: 'Desviación de cada marca de clase', b: () => `<p>Se calcula igual que con datos no agrupados, pero con la marca de clase en lugar de cada dato. Usa la media agrupada x̄ = ${f2(S.mean)}.</p><div class="formula">Clase 1: x<sub>1</sub> − x̄ = ${fv(r0.xi)} − ${f2(S.mean)} = ${f2(r0.dev)}</div>`,
+      v: () => T(['c', 'x', 'f', 'fx', 'd'], ['d']) },
+    { t: 'Eleva al cuadrado', b: () => `<div class="formula">Clase 1: (${f2(r0.dev)})² = ${f2(r0.dev2)}</div><p>Como antes, el cuadrado elimina el signo y da más peso a las clases lejanas.</p>`,
+      v: () => T(['c', 'x', 'f', 'd', 'd2'], ['d2']) },
+    { t: 'Multiplica por la frecuencia', b: () => `<p>Cada cuadrado se repite tantas veces como casos hay en la clase, así que se multiplica por f<sub>i</sub>:</p><div class="formula">Clase 1: ${r0.fi} × ${f2(r0.dev2)} = ${f2(r0.fdev2)}<br>SC = Σf<sub>i</sub>(x<sub>i</sub> − x̄)² = <strong>${f2(S.ss)}</strong></div>`,
+      v: () => T(['c', 'x', 'f', 'd', 'd2', 'fd2'], ['fd2']) },
+    { t: 'Varianza y desviación estándar', b: () => `<div class="formula">s² = Σf<sub>i</sub>(x<sub>i</sub> − x̄)² / (n − 1) = ${f2(S.ss)} / ${n - 1} = <strong>${f2(S.varS)}</strong><br>s = √${f2(S.varS)} = <strong>${f2(S.sd)}</strong></div><p><strong>Fórmula alternativa</strong> (más rápida con calculadora, da lo mismo):</p><div class="formula">s² = [Σf<sub>i</sub>x<sub>i</sub>² − n·x̄²] / (n − 1) = [${f2(S.sfx2)} − ${n} · ${f2(S.mean)}²] / ${n - 1} = ${f2((S.sfx2 - n * S.mean * S.mean) / (n - 1))}</div><p class="note">Con datos crudos: s² = ${f2(u.varS)} y s = ${f2(u.sd)}.</p>`,
+      v: () => `${T(['c', 'x', 'f', 'd', 'd2', 'fd2'], [])}${stat([['s²', f2(S.varS), 1], ['s', f2(S.sd), 1], ['s crudos', f2(u.sd)]])}` },
+    { t: 'Interpreta: x̄ ± s y coeficiente de variación', b: () => `<p>En promedio, los puntajes se alejan unos ${f2(S.sd)} puntos de la media. La franja sombreada del histograma es x̄ ± s: de ${f2(S.mean - S.sd)} a ${f2(S.mean + S.sd)}.</p><div class="formula">CV = (s / x̄) × 100 = (${f2(S.sd)} / ${f2(S.mean)}) × 100 = <strong>${f1(S.cv)}%</strong></div><p>${S.cv < 15 ? 'Grupo bastante homogéneo.' : S.cv <= 30 ? 'Variabilidad moderada.' : 'Grupo muy heterogéneo: conviene revisar si hay subgrupos con perfiles distintos.'}</p>`,
+      v: () => histSVG(G, { xl, band: [S.mean - S.sd, S.mean + S.sd], marks: [{ x: S.mean, label: `x̄ = ${f2(S.mean)}`, cls: 'mMean' }] }) }
+  ];
+};
+
+/* ============ AGRUPADOS: covarianza ============ */
+function bivTable(B, mode){
+  const { GX, GY, M, fx, fy, P } = B;
+  let h = `<div class="tscroll"><table class="t biv"><thead><tr><th>X \\ Y</th>${GY.rows.map(r => `<th class="mk">${fv(r.Li)}–${fv(r.Ls)}<br><small>y<sub>j</sub> = ${fv(r.xi)}</small></th>`).join('')}<th>f<sub>x</sub></th></tr></thead><tbody>`;
+  GX.rows.forEach((r, i) => { h += `<tr><th class="mk">${fv(r.Li)}–${fv(r.Ls)}<br><small>x<sub>i</sub> = ${fv(r.xi)}</small></th>${M[i].map((f, j) => { const p = P[i][j]; const cl = mode === 'prod' && f ? (p > 1e-9 ? 'cellpos' : p < -1e-9 ? 'cellneg' : '') : ''; return `<td class="${cl}">${mode === 'prod' ? (f ? f2(p) : '·') : (f || '·')}</td>`; }).join('')}<td><strong>${fx[i]}</strong></td></tr>`; });
+  h += `<tr><th>f<sub>y</sub></th>${fy.map(f => `<td><strong>${f}</strong></td>`).join('')}<td><strong>${B.n}</strong></td></tr></tbody></table></div>`;
+  return h;
+}
+STEPS.gcv = () => {
+  const B = ST.gb, { GX, GY, n } = B, xN = SC.gVar, yN = SC.gyN;
+  const i0 = B.M.findIndex(r => r.some(f => f)), j0 = B.M[i0].findIndex(f => f);
+  return [
+    { t: 'Agrupa cada variable por separado', b: () => `<p>Con muchos casos, cada variable se agrupa en clases con su propia amplitud, igual que en una tabla de frecuencias.</p><div class="formula">X (${xN}): k = ${GX.k} clases, A = ${fv(GX.A)}<br>Y (${yN}): k = ${GY.k} clases, A = ${fv(GY.A)}</div><p class="note">Si una variable tiene pocos valores distintos, como ${yN.toLowerCase()}, sus clases pueden ser pocas y angostas.${GY.trimmed || GX.trimmed ? ' Se omitieron las clases finales vacías que la regla de Sturges generaba de más.' : ''}</p>`,
+      v: () => scatterSVG(B.raw && ST.gbData.x, ST.gbData.y, { xl: `X: ${xN}`, yl: yN }) },
+    { t: 'Construye la tabla de doble entrada', b: () => `<p>Cada celda cuenta cuántos casos caen a la vez en una clase de X (renglón) y en una clase de Y (columna): es la <strong>frecuencia conjunta</strong> f<sub>ij</sub>.</p><p>Los totales de renglón f<sub>x</sub> y de columna f<sub>y</sub> son las <strong>frecuencias marginales</strong>: la tabla de frecuencias de cada variable por separado. Todo suma n = ${n}.</p><p>Mira la diagonal: si las frecuencias se acumulan de arriba a la izquierda hacia abajo a la derecha, la relación es positiva; si van en la otra diagonal, negativa.</p>`,
+      v: () => bivTable(B, 'f') },
+    { t: 'Calcula las medias marginales', b: () => `<p>Cada media se calcula con su marginal, como una media agrupada:</p><div class="formula">x̄ = Σf<sub>x</sub>x<sub>i</sub> / n = ${fv(sum(GX.rows.map((r, i) => B.fx[i] * r.xi)))} / ${n} = <strong>${f2(B.mx)}</strong><br>ȳ = Σf<sub>y</sub>y<sub>j</sub> / n = ${fv(sum(GY.rows.map((r, j) => B.fy[j] * r.xi)))} / ${n} = <strong>${f2(B.my)}</strong></div>`,
+      v: () => bivTable(B, 'f') + stat([['x̄', f2(B.mx), 1], ['ȳ', f2(B.my), 1]]) },
+    { t: 'Producto de desviaciones en cada celda', b: () => `<p>En cada celda con casos calcula f<sub>ij</sub> · (x<sub>i</sub> − x̄)(y<sub>j</sub> − ȳ). Por ejemplo, la primera celda con casos:</p><div class="formula">${B.M[i0][j0]} · (${fv(GX.rows[i0].xi)} − ${f2(B.mx)}) · (${fv(GY.rows[j0].xi)} − ${f2(B.my)}) = ${B.M[i0][j0]} · ${neg(GX.rows[i0].xi - B.mx)} · ${neg(GY.rows[j0].xi - B.my)} = ${f2(B.P[i0][j0])}</div><p>Las celdas turquesa aportan valores positivos y las doradas, negativos.</p>`,
+      v: () => bivTable(B, 'prod') },
+    { t: 'Suma y divide entre n − 1', b: () => `<div class="formula">S<sub>xy</sub> = ΣΣ f<sub>ij</sub>(x<sub>i</sub> − x̄)(y<sub>j</sub> − ȳ) / (n − 1) = ${f2(B.sp)} / ${n - 1} = <strong>${f2(B.cov)}</strong></div><p>Para saber qué tan fuerte es, calcula la correlación con las desviaciones estándar agrupadas de cada marginal:</p><div class="formula">r = S<sub>xy</sub> / (s<sub>x</sub> · s<sub>y</sub>) = ${f2(B.cov)} / (${f2(B.sx)} · ${f2(B.sy)}) = <strong>${f2(B.r)}</strong></div><p class="note">Con los datos crudos: S<sub>xy</sub> = ${f2(B.raw.cov)} y r = ${f2(B.raw.r)}.</p>`,
+      v: () => bivTable(B, 'prod') + stat([['S<sub>xy</sub> agrupada', f2(B.cov), 1], ['r agrupada', f2(B.r), 1], ['S<sub>xy</sub> crudos', f2(B.raw.cov)], ['r crudos', f2(B.raw.r)]]) },
+    { t: 'Interpreta', b: () => `<p>La covarianza es <strong>${B.cov > 0 ? 'positiva' : 'negativa'}</strong> y r = ${f2(B.r)} indica una relación ${Math.abs(B.r) >= .7 ? 'fuerte' : Math.abs(B.r) >= .4 ? 'moderada' : 'débil'}: ${KEY === 'clin' ? 'los pacientes con más síntomas depresivos tienden a dormir menos horas.' : 'los internos con puntajes PCL-R más altos tienden a acumular más incidentes disciplinarios.'}</p><p>Recuerda: describe una tendencia en el grupo, no una causa, y no permite predecir con certeza el caso individual. ${KEY === 'clin' ? 'El insomnio puede ser síntoma de la depresión y también agravarla.' : 'En peritaje, un puntaje aislado nunca debe usarse para concluir sobre la conducta futura de una persona.'}</p><p class="note">Agrupar pierde información, por eso S<sub>xy</sub> y r agrupados difieren un poco de los calculados con datos crudos.</p>`,
+      v: () => scatterSVG(ST.gbData.x, ST.gbData.y, { xl: `X: ${xN}`, yl: yN, means: [B.raw.mx, B.raw.my] }) }
+  ];
+};
+
+/* ============ EJERCICIOS ============ */
+function field(id, label){ return `<label>${label}<input class="cell2" id="${id}" inputmode="decimal" autocomplete="off"><span class="fb" id="${id}fb"></span></label>`; }
+function chk(id, truth, tol, hint, fill){ const el = $('#' + id); if (fill) el.value = +truth.toFixed(2); const ok = Math.abs(num(el.value) - truth) <= tol; el.classList.toggle('ok', ok); el.classList.toggle('bad', !ok); const fb = $('#' + id + 'fb'); fb.textContent = ok ? 'Correcto' : hint; fb.className = 'fb ' + (ok ? 'ok' : 'bad'); return ok; }
+const tolOf = (v, base = .02) => Math.max(base, Math.abs(v) * .001);
+const UX_CTX = {
+  clin: [['sesiones a las que faltaron', 'pacientes en tratamiento por consumo de alcohol durante el último trimestre', 0, 9, 'Número de inasistencias'], ['puntajes en la Escala de Ansiedad de Hamilton (HAM-A, 0 a 56)', 'pacientes con trastorno de ansiedad generalizada', 8, 36, 'HAM-A']],
+  for: [['años de sentencia', 'internos por robo con violencia', 3, 20, 'Años de sentencia'], ['reportes disciplinarios en el último año', 'internos de un módulo de máxima seguridad', 0, 9, 'Reportes']]
+};
+function newUX(){
+  const c = UX_CTX[KEY][rint(0, 1)]; let d, s;
+  do { const n = rint(7, 11); d = Array.from({ length: n }, () => rint(c[2], c[3])); s = uStats(d); } while (s.modes.length !== 1 || s.sd === 0);
+  const bx = [], by = []; const n2 = 6, slope = Math.random() < .5 ? 1 : -1;
+  for (let i = 0; i < n2; i++){ const xv = rint(1, 10); bx.push(xv); by.push(Math.max(0, Math.min(12, Math.round(6 + slope * .7 * (xv - 5.5) + rint(-2, 2))))); }
+  const b = bStats(bx, by);
+  const bctx = KEY === 'clin' ? ['semanas en lista de espera', 'puntaje de desesperanza (0 a 12)', 'pacientes'] : ['número de visitas familiares al mes', 'número de conflictos con otros internos al mes', 'internos'];
+  if (!isFinite(b.r)) return newUX();
+  $('#uxA').innerHTML = `<p>Se registraron los ${c[0]} de ${d.length} ${c[1]}:</p>${chips(d)}<p class="note">Redondea a dos decimales. Varianza y desviación estándar muestrales (n − 1).</p><div class="calcgrid">${field('ua1', 'Media x̄')}${field('ua2', 'Mediana')}${field('ua3', 'Moda')}${field('ua4', 'Rango')}${field('ua5', 'Varianza s²')}${field('ua6', 'Desviación estándar s')}${field('ua7', 'CV (%)')}</div><div class="ctrl"><button class="btn small" id="uaChk">Comprobar</button><button class="btn small ghost" id="uaSol">Ver solución</button></div><div class="msg" id="uaM"></div><div class="sol" id="uaS"></div>`;
+  const runA = fill => {
+    let ok = chk('ua1', s.mean, .011, 'Σx / n', fill); ok = chk('ua2', s.med, .011, 'Ordena; si n es par, promedia los dos centrales.', fill) && ok; ok = chk('ua3', s.modes[0], 0, 'El valor que más se repite.', fill) && ok;
+    ok = chk('ua4', s.max - s.min, 0, 'Máximo − mínimo.', fill) && ok; ok = chk('ua5', s.varS, tolOf(s.varS, .03), 'Σ(x − x̄)² / (n − 1)', fill) && ok; ok = chk('ua6', s.sd, .015, '√s²', fill) && ok; ok = chk('ua7', s.cv, .15, '(s / x̄) × 100', fill) && ok;
+    $('#uaM').textContent = fill ? '' : ok ? 'Todo correcto.' : 'Revisa los campos marcados; puedes ver la solución paso a paso.'; $('#uaM').className = 'msg ' + (ok ? 'ok' : 'bad');
+    if (fill){ $('#uaS').classList.add('on'); $('#uaS').innerHTML = `Ordenados: ${s.sorted.map(fv).join(', ')}<br>x̄ = ${fv(s.S)} / ${s.n} = ${f2(s.mean)}<br>Me = ${s.n % 2 ? `dato en la posición ${(s.n + 1) / 2} = ${fv(s.med)}` : `(${fv(s.sorted[s.n / 2 - 1])} + ${fv(s.sorted[s.n / 2])}) / 2 = ${fv(s.med)}`}<br>Mo = ${fv(s.modes[0])} (aparece ${s.maxf} veces)<br>R = ${fv(s.max)} − ${fv(s.min)} = ${fv(s.max - s.min)}<br>Desviaciones al cuadrado: ${s.sq.map(f2).join(', ')}<br>SC = ${f2(s.ss)} → s² = ${f2(s.ss)} / ${s.n - 1} = ${f2(s.varS)} → s = ${f2(s.sd)}<br>CV = ${f2(s.sd)} / ${f2(s.mean)} × 100 = ${f1(s.cv)}%`; }
+  };
+  $('#uaChk').onclick = () => runA(false); $('#uaSol').onclick = () => runA(true);
+  $('#uxB').innerHTML = `<p>Para ${n2} ${bctx[2]} se registró X = ${bctx[0]} e Y = ${bctx[1]}.</p><div class="tscroll"><table class="t"><tr><th>Caso</th>${bx.map((_, i) => `<td>${i + 1}</td>`).join('')}</tr><tr><th>X</th>${bx.map(v => `<td>${v}</td>`).join('')}</tr><tr><th>Y</th>${by.map(v => `<td>${v}</td>`).join('')}</tr></table></div><div class="calcgrid">${field('ub1', 'x̄')}${field('ub2', 'ȳ')}${field('ub3', 'Covarianza S<sub>xy</sub>')}${field('ub4', 'Correlación r')}</div><div class="ctrl"><button class="btn small" id="ubChk">Comprobar</button><button class="btn small ghost" id="ubSol">Ver solución</button></div><div class="msg" id="ubM"></div><div class="sol" id="ubS"></div>`;
+  const runB = fill => {
+    let ok = chk('ub1', b.mx, .011, 'Σx / n', fill); ok = chk('ub2', b.my, .011, 'Σy / n', fill) && ok; ok = chk('ub3', b.cov, .03, 'Σ(x − x̄)(y − ȳ) / (n − 1)', fill) && ok; ok = chk('ub4', b.r, .011, 'S_xy / (s_x · s_y)', fill) && ok;
+    $('#ubM').textContent = fill ? '' : ok ? 'Todo correcto.' : 'Revisa los campos marcados.'; $('#ubM').className = 'msg ' + (ok ? 'ok' : 'bad');
+    if (fill){ $('#ubS').classList.add('on'); $('#ubS').innerHTML = `x − x̄: ${b.dx.map(f2).join(', ')}<br>y − ȳ: ${b.dy.map(f2).join(', ')}<br>Productos: ${b.pr.map(f2).join(', ')}<br>Σ = ${f2(b.sp)} → S<sub>xy</sub> = ${f2(b.sp)} / ${n2 - 1} = ${f2(b.cov)}<br>s<sub>x</sub> = ${f2(b.sx)}, s<sub>y</sub> = ${f2(b.sy)} → r = ${f2(b.cov)} / (${f2(b.sx)} · ${f2(b.sy)}) = ${f2(b.r)}. La relación es ${b.r > 0 ? 'positiva' : 'negativa'}.`; }
+  };
+  $('#ubChk').onclick = () => runB(false); $('#ubSol').onclick = () => runB(true);
+}
+function newGX(){
+  const ctx = KEY === 'clin' ? ['Puntajes del Inventario de Ansiedad de Beck (BAI, 0 a 63) de pacientes con trastorno de pánico', 30, 9] : ['Puntajes de agresividad (Cuestionario de Agresión de Buss-Perry, 29 a 145) de adolescentes en internamiento', 88, 16];
+  let d, G, S;
+  do { const n = rint(30, 50); d = Array.from({ length: n }, () => Math.max(0, Math.round(ctx[1] + ctx[2] * (Math.random() + Math.random() + Math.random() - 1.5) * 2))); G = grouped(d); S = gStats(G); } while (S.nModal > 1 || G.rows.some(r => r.fi === 0));
+  $('#gxA').innerHTML = `<p>${ctx[0]}, n = ${G.n}. Completa las columnas que necesites en tu cuaderno (x<sub>i</sub>, F<sub>i</sub>, f<sub>i</sub>x<sub>i</sub>, …) y calcula:</p><div class="tscroll"><table class="t"><tr><th>Clase</th>${G.rows.map(r => `<td>${fv(r.Li)} – ${fv(r.Ls)}</td>`).join('')}</tr><tr><th>f<sub>i</sub></th>${G.rows.map(r => `<td>${r.fi}</td>`).join('')}</tr></table></div><p class="note">Límites reales: ±${fv(G.u / 2)}. Amplitud A = ${fv(G.A)}. Redondea a dos decimales; varianza muestral.</p><div class="calcgrid">${field('ga1', 'Media x̄')}${field('ga2', 'Mediana')}${field('ga3', 'Moda')}${field('ga4', 'Varianza s²')}${field('ga5', 'Desviación estándar s')}</div><div class="ctrl"><button class="btn small" id="gaChk">Comprobar</button><button class="btn small ghost" id="gaSol">Ver solución</button></div><div class="msg" id="gaM"></div><div class="sol" id="gaS"></div>`;
+  const mr = G.rows[S.mi], mo = G.rows[S.moi];
+  const runA = fill => {
+    let ok = chk('ga1', S.mean, .015, 'Σf·x / n', fill); ok = chk('ga2', S.median, .02, 'Li + [(n/2 − F anterior) / f] · A', fill) && ok; ok = chk('ga3', S.mode, .02, 'Li + [d1 / (d1 + d2)] · A', fill) && ok;
+    ok = chk('ga4', S.varS, tolOf(S.varS, .1), 'Σf(x − x̄)² / (n − 1)', fill) && ok; ok = chk('ga5', S.sd, .02, '√s²', fill) && ok;
+    $('#gaM').textContent = fill ? '' : ok ? 'Todo correcto.' : 'Revisa los campos marcados.'; $('#gaM').className = 'msg ' + (ok ? 'ok' : 'bad');
+    if (fill){ $('#gaS').classList.add('on'); $('#gaS').innerHTML = table(gCols(G, S), G.rows, ['c', 'lr', 'x', 'f', 'F', 'fx', 'd', 'd2', 'fd2'], [], true) + `x̄ = ${fv(S.sfx)} / ${G.n} = ${f2(S.mean)}<br>n/2 = ${fv(S.half)} → clase mediana ${fv(mr.Li)}–${fv(mr.Ls)}: Me = ${fv(mr.LRi)} + [(${fv(S.half)} − ${S.Fprev}) / ${mr.fi}] · ${fv(G.A)} = ${f2(S.median)}<br>Clase modal ${fv(mo.Li)}–${fv(mo.Ls)}: d<sub>1</sub> = ${S.d1}, d<sub>2</sub> = ${S.d2} → Mo = ${fv(mo.LRi)} + [${S.d1} / ${S.d1 + S.d2}] · ${fv(G.A)} = ${f2(S.mode)}<br>s² = ${f2(S.ss)} / ${G.n - 1} = ${f2(S.varS)} → s = ${f2(S.sd)}`; }
+  };
+  $('#gaChk').onclick = () => runA(false); $('#gaSol').onclick = () => runA(true);
+  // B: tabla 3x3
+  const xs = KEY === 'clin' ? [[5, 'Pocas (0–9)'], [15, 'Medias (10–19)'], [25, 'Muchas (20–29)']] : [[2, '0–4'], [7, '5–9'], [12, '10–14']];
+  const ys = KEY === 'clin' ? [[10, '5–15'], [25, '20–30'], [40, '35–45']] : [[1, '0–2'], [4, '3–5'], [7, '6–8']];
+  const sgnT = Math.random() < .5 ? 1 : -1; let M, bb;
+  do { M = xs.map((_, i) => ys.map((_, j) => { const diag = sgnT > 0 ? i === j : i + j === 2; return rint(diag ? 3 : 0, diag ? 8 : 3); })); const n = sum(M.map(sum)); const fx = M.map(sum), fy = ys.map((_, j) => sum(M.map(r => r[j]))); const mx = sum(xs.map((x, i) => fx[i] * x[0])) / n, my = sum(ys.map((y, j) => fy[j] * y[0])) / n; let sp = 0; M.forEach((r, i) => r.forEach((f, j) => sp += f * (xs[i][0] - mx) * (ys[j][0] - my))); bb = { n, fx, fy, mx, my, sp, cov: sp / (n - 1) }; } while (bb.n < 20);
+  const lab = KEY === 'clin' ? ['X: sesiones de exposición en realidad virtual (marca de clase)', 'Y: reducción en la Escala de Miedo a Volar (marca de clase)'] : ['X: años de condena cumplidos (marca de clase)', 'Y: puntaje de desesperanza (marca de clase)'];
+  $('#gxB').innerHTML = `<p>${lab[0]} contra ${lab[1].replace('Y: ', '').toLowerCase()}.</p><div class="tscroll"><table class="t biv"><tr><th>X \\ Y</th>${ys.map(y => `<th class="mk">${y[1]}<br><small>y = ${y[0]}</small></th>`).join('')}</tr>${xs.map((x, i) => `<tr><th class="mk">${x[1]}<br><small>x = ${x[0]}</small></th>${M[i].map(f => `<td>${f}</td>`).join('')}</tr>`).join('')}</table></div><div class="calcgrid">${field('gb1', 'n')}${field('gb2', 'x̄')}${field('gb3', 'ȳ')}${field('gb4', 'Covarianza S<sub>xy</sub>')}</div><div class="ctrl"><button class="btn small" id="gbChk">Comprobar</button><button class="btn small ghost" id="gbSol">Ver solución</button></div><div class="msg" id="gbM"></div><div class="sol" id="gbS"></div>`;
+  const runB = fill => {
+    let ok = chk('gb1', bb.n, 0, 'Suma todas las celdas.', fill); ok = chk('gb2', bb.mx, .011, 'Σ f_x · x / n', fill) && ok; ok = chk('gb3', bb.my, .011, 'Σ f_y · y / n', fill) && ok; ok = chk('gb4', bb.cov, tolOf(bb.cov, .03), 'ΣΣ f(x − x̄)(y − ȳ) / (n − 1)', fill) && ok;
+    $('#gbM').textContent = fill ? '' : ok ? 'Todo correcto.' : 'Revisa los campos marcados.'; $('#gbM').className = 'msg ' + (ok ? 'ok' : 'bad');
+    if (fill){ $('#gbS').classList.add('on'); $('#gbS').innerHTML = `Marginales: f<sub>x</sub> = ${bb.fx.join(', ')}; f<sub>y</sub> = ${bb.fy.join(', ')}; n = ${bb.n}<br>x̄ = (${xs.map((x, i) => `${bb.fx[i]}·${x[0]}`).join(' + ')}) / ${bb.n} = ${f2(bb.mx)}<br>ȳ = (${ys.map((y, j) => `${bb.fy[j]}·${y[0]}`).join(' + ')}) / ${bb.n} = ${f2(bb.my)}<br>Productos por celda: ${M.map((r, i) => r.map((f, j) => f2(f * (xs[i][0] - bb.mx) * (ys[j][0] - bb.my))).join(', ')).join(' | ')}<br>Σ = ${f2(bb.sp)} → S<sub>xy</sub> = ${f2(bb.sp)} / ${bb.n - 1} = ${f2(bb.cov)} (${bb.cov > 0 ? 'relación positiva' : 'relación negativa'})`; }
+  };
+  $('#gbChk').onclick = () => runB(false); $('#gbSol').onclick = () => runB(true);
+}
+$('#uxNew').onclick = newUX; $('#gxNew').onclick = newGX;
+
+/* ============ datos propios ============ */
+function msg(id, t, c){ const m = $('#' + id); m.textContent = t; m.className = 'msg ' + c; }
+$('#uaApply').onclick = () => { const d = parse($('#uaText').value); if (d.some(isNaN) || d.length < 3 || new Set(d).size < 2) return msg('uaMsg', 'Necesitas al menos 3 números y 2 valores distintos.', 'bad'); ST.u = d; ST.uOwn = true; ST.out = null; cases(); STEPPERS.utc.go(0); STEPPERS.udi.go(0); msg('uaMsg', 'Datos aplicados en los temas 1 y 2.', 'ok'); };
+$('#uaReset').onclick = () => { ST.u = SC.u; ST.uOwn = false; ST.out = null; cases(); STEPPERS.utc.go(0); STEPPERS.udi.go(0); msg('uaMsg', '', ''); };
+$('#ubApply').onclick = () => { const x = parse($('#ubX').value), y = parse($('#ubY').value); if (x.some(isNaN) || y.some(isNaN) || x.length !== y.length || x.length < 3 || new Set(x).size < 2 || new Set(y).size < 2) return msg('ubMsg', 'X e Y deben tener la misma cantidad de números (al menos 3) y no ser constantes.', 'bad'); ST.bx = x; ST.by = y; ST.bOwn = true; ST.scale = false; cases(); STEPPERS.ucv.go(0); msg('ubMsg', 'Datos aplicados.', 'ok'); };
+$('#ubReset').onclick = () => { ST.bx = SC.bx; ST.by = SC.by; ST.bOwn = false; cases(); STEPPERS.ucv.go(0); msg('ubMsg', '', ''); };
+$('#gApply').onclick = () => { const d = parse($('#gText').value); if (d.some(isNaN) || d.length < 15 || new Set(d).size < 4) return msg('gMsg', 'Necesitas al menos 15 números y 4 valores distintos.', 'bad'); ST.g = grouped(d); ST.gOwn = true; cases(); STEPPERS.gtc.go(0); STEPPERS.gdi.go(0); msg('gMsg', 'Datos agrupados y aplicados en los temas 1 y 2.', 'ok'); };
+$('#gReset').onclick = () => { ST.g = grouped(ST.gbData.x); ST.gOwn = false; cases(); STEPPERS.gtc.go(0); STEPPERS.gdi.go(0); msg('gMsg', '', ''); };
+
+/* ============ navegación y escenario ============ */
+document.querySelectorAll('.bigtabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.bigtabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('.bigpanel').forEach(p => p.classList.toggle('on', p.id === b.dataset.big));
+});
+document.querySelectorAll('nav.parts').forEach(nav => nav.querySelectorAll('button').forEach(b => b.onclick = () => {
+  nav.querySelectorAll('button').forEach(x => x.setAttribute('aria-selected', x === b));
+  nav.parentElement.querySelectorAll(':scope > .part').forEach(p => p.classList.toggle('on', p.id === b.dataset.p));
+}));
+function cases(){
+  const c = (t, s) => `<p><strong>${KEY === 'clin' ? 'Caso clínico' : 'Caso forense'}.</strong> ${s}</p>`;
+  $('#uaCase').innerHTML = ST.uOwn ? `<p><strong>Tus datos.</strong> n = ${ST.u.length}.</p>` : c(0, SC.uIntro);
+  $('#uaCase2').innerHTML = $('#uaCase').innerHTML;
+  $('#ubCase').innerHTML = ST.bOwn ? `<p><strong>Tus datos pareados.</strong> n = ${ST.bx.length}.</p>` : c(0, SC.bIntro);
+  $('#gCase').innerHTML = ST.gOwn ? `<p><strong>Tus datos agrupados.</strong> n = ${ST.g.n}.</p>` : c(0, SC.gIntro);
+  $('#gCase2').innerHTML = $('#gCase').innerHTML;
+  $('#gbCase').innerHTML = c(0, SC.gbIntro);
+}
+function setScen(k){
+  KEY = k; SC = SCEN[k];
+  ST.u = SC.u; ST.uOwn = false; ST.out = null; ST.bx = SC.bx; ST.by = SC.by; ST.bOwn = false; ST.scale = false;
+  ST.gbData = genPairs(k); ST.g = grouped(ST.gbData.x); ST.gOwn = false; ST.gb = bivGrouped(ST.gbData.x, ST.gbData.y);
+  document.querySelectorAll('.scen button').forEach(b => b.setAttribute('aria-pressed', b.dataset.scen === k));
+  cases();
+  Object.values(STEPPERS).forEach(s => s.go(0));
+  newUX(); newGX();
+}
+['utc', 'udi', 'ucv', 'gtc', 'gdi', 'gcv'].forEach(buildStepper);
+document.querySelectorAll('.scen button').forEach(b => b.onclick = () => setScen(b.dataset.scen));
+setScen('clin');
+</script>
+</body>
+</html>
